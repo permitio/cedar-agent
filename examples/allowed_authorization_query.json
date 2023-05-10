@@ -1,0 +1,5 @@
+{
+  "principal": "User::\"admin.1@domain.com\"",
+  "action": "Action::\"create\"",
+  "resource": "Document::\"cedar-agent.pdf\""
+}

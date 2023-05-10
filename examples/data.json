@@ -1,0 +1,158 @@
+[
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Admin",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "admin.1@domain.com",
+      "type": "User"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Editor",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "editor.1@domain.com",
+      "type": "User"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Viewer",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "viewer.1@domain.com",
+      "type": "User"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Admin",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "delete",
+      "type": "Action"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Admin",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "create",
+      "type": "Action"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [],
+    "uid": {
+      "id": "cedar-agent.pdf",
+      "type": "Document"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Admin",
+        "type": "Role"
+      },
+      {
+        "id": "Editor",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "update",
+      "type": "Action"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Admin",
+        "type": "Role"
+      },
+      {
+        "id": "Editor",
+        "type": "Role"
+      },
+      {
+        "id": "Viewer",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "list",
+      "type": "Action"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [
+      {
+        "id": "Admin",
+        "type": "Role"
+      },
+      {
+        "id": "Editor",
+        "type": "Role"
+      },
+      {
+        "id": "Viewer",
+        "type": "Role"
+      }
+    ],
+    "uid": {
+      "id": "get",
+      "type": "Action"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [],
+    "uid": {
+      "id": "Admin",
+      "type": "Role"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [],
+    "uid": {
+      "id": "Editor",
+      "type": "Role"
+    }
+  },
+  {
+    "attrs": {},
+    "parents": [],
+    "uid": {
+      "id": "Viewer",
+      "type": "Role"
+    }
+  }
+]
