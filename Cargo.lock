@@ -270,7 +270,7 @@ checksum = "50d30906286121d95be3d479533b458f87493b30a4b5f79a607db8f5d11aa91f"
 
 [[package]]
 name = "cedar-agent"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "async-lock",
  "async-trait",
