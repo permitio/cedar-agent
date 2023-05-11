@@ -2,7 +2,7 @@
 name = "cedar-agent"
 version = "0.1.0"
 edition = "2021"
-license-file = "LICENSE"
+license = "Apache-2.0"
 readme = "README.md"
 homepage = "https://github.com/permitio/cedar-agent"
 description = "Cedar-Agent is an HTTP server designed to efficiently manage a policy store and a data store. It provides a seamless integration with Cedar, a language for defining permissions as policies."

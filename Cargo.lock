@@ -289,9 +289,9 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49558864ae5abfe1025d24696683501c9deda8b4c05eb1ea53123c2178bbf29a"
+checksum = "ddbee096f81a4d2264d68655e8fe9b2ae3d9fc2c8b41789417b1483860603a5a"
 dependencies = [
  "cedar-policy-core",
  "cedar-policy-validator",
@@ -306,9 +306,9 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy-core"
-version = "2.0.0"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa1ebfc1b22e03a4fd47e2fc835180d3b024d86a38a3ef0f50cb181babe095e1"
+checksum = "8327f73770a78f83e2ef642b5ee953dab13d3b548a0c4d37eab441b85f9f9be2"
 dependencies = [
  "arbitrary",
  "either",
@@ -329,9 +329,9 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy-validator"
-version = "2.0.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "377d418530d4f36b1428c6133fc08053981a9c9997a6db58d3aa8cbf178097cc"
+checksum = "332eb2e21edb6787b509a616adabd6e129918f21fd47b44d71cc749b538c74d3"
 dependencies = [
  "arbitrary",
  "cedar-policy-core",
@@ -1914,9 +1914,9 @@ checksum = "1792db035ce95be60c3f8853017b3999209281c24e2ba5bc8e59bf97a0c590c1"
 
 [[package]]
 name = "serde"
-version = "1.0.162"
+version = "1.0.163"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71b2f6e1ab5c2b98c05f0f35b236b22e8df7ead6ffbf51d7808da7f8817e7ab6"
+checksum = "2113ab51b87a539ae008b5c6c02dc020ffa39afd2d83cffcb3f4eb2722cebec2"
 dependencies = [
  "serde_derive",
 ]
@@ -1933,9 +1933,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.162"
+version = "1.0.163"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2a0814352fd64b58489904a44ea8d90cb1a91dcb6b4f5ebabc32c8318e93cb6"
+checksum = "8c805777e3930c8883389c602315a24224bcc738b63905ef87cd1420353ea93e"
 dependencies = [
  "proc-macro2",
  "quote",
