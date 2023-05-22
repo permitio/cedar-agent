@@ -15,6 +15,10 @@ policies.
 If you are not familiar with Cedar, we encourage you to visit the [Cedar website](https://www.cedarpolicy.com/en)
 and [playground](https://www.cedarpolicy.com/en/playground) to learn more about it.
 
+Learn more reading these blog posts:
+- [Policy as Code: OPA's Rego vs. AWS Cedar](https://www.permit.io/blog/opa-vs-cedar)
+- [Open-Sourcing AWS Cedar is a Gamechanger for IAM](https://www.permit.io/blog/oss-aws-cedar-is-a-gamechanger-for-iam)
+
 ### Policy Store Management
 
 Cedar-Agent includes a store that allows you to create, retrieve, update, and delete policies.
