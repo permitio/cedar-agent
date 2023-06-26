@@ -15,5 +15,7 @@ WORKDIR /agent
 
 COPY --from=build /agent/target/release/cedar-agent /agent/cedar-agent
 
+ENV ADDR=0.0.0.0
+
 ENTRYPOINT ["/agent/cedar-agent"]
 
