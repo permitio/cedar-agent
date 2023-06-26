@@ -4,6 +4,7 @@ extern crate rocket;
 use std::borrow::Borrow;
 
 use rocket::catchers;
+use rocket::http::ContentType;
 use rocket_okapi::settings::UrlObject;
 use rocket_okapi::{openapi_get_routes, rapidoc::*, swagger_ui::*};
 
@@ -27,6 +28,7 @@ async fn main() {
     logger::init(&config);
     let server_config: rocket::figment::Figment = config.borrow().into();
     let launch_result = rocket::custom(server_config)
+        .attach(common::DefaultContentType::new(ContentType::JSON))
         .manage(config)
         .manage(Box::new(MemoryPolicyStore::new()) as Box<dyn PolicyStore>)
         .manage(Box::new(MemoryDataStore::new()) as Box<dyn DataStore>)
