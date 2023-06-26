@@ -135,7 +135,7 @@ To check the arguments you can pass to the binary, run:
 To execute the Cedar Agent docker image, use the following command:
 
 ```shell
-docker run permitio/cedar-agent
+docker run -p 8180:8180 permitio/cedar-agent
 ```
 
 ### Test
