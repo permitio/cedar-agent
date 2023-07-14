@@ -95,6 +95,9 @@ Cedar Agent configuration is available using environment variables and command l
 - The log level to filter logs. Defaults to `info`.  
   `LOG_LEVEL` environment variable.  
   `--log-level`, `-l` command line argument.
+- Load data from json file. Defaults to `None`.  
+  `DATA` environment variable.
+  `--data`, `-d` command line argument.
 
 **command line arguments take precedence over environment variables when configuring the Cedar Agent**
 
