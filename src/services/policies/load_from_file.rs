@@ -5,43 +5,44 @@ use std::io::Read;
 use log::{error, info};
 
 use rocket::fairing::{Fairing, Info, Kind};
+use rocket::serde::json::Json;
 use rocket::Rocket;
 use rocket::Build;
 
-use crate::services::data::DataStore;
+use crate::services::policies::PolicyStore;
+use crate::schemas::policies::Policy;
 use crate::config;
-use crate::schemas::data::Entities;
 
-pub struct InitDataFairing;
+pub struct InitPoliciesFairing;
 
-pub(crate) async fn init(conf: &config::Config, data_store: &Box<dyn DataStore>) {
-    let file_path = conf.data.clone().unwrap_or("".to_string());
+pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicyStore>) {
+    let file_path = conf.policy.clone().unwrap_or("".to_string());
 
     if file_path.is_empty() {
         return;
     }
 
-    let entities_file_path = PathBuf::from(&file_path);
-    let entities = match load_entities_from_file(entities_file_path).await {
-        Ok(entities) => entities,
+    let policies_file_path = PathBuf::from(&file_path);
+    let policies = match load_policies_from_file(policies_file_path).await {
+        Ok(policies) => policies,
         Err(err) => {
-            error!("Failed to load entities from file: {}", err);
+            error!("Failed to load policies from file: {}", err);
             return;
         }
     };
 
-    match data_store.update_entities(entities).await {
-        Ok(entities) => {
-            info!("Successfully updated entities from file {}: {} entities", &file_path, entities.len());
+    match policy_store.update_policies(policies.into_inner()).await {
+        Ok(policies) => {
+            info!("Successfully updated policies from file {}: {} policies", &file_path, policies.len());
         }
         Err(err) => {
-            error!("Failed to update entities: {}", err);
+            error!("Failed to update policies: {}", err);
             return;
         }
     };
 }
 
-async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn Error>> {
+async fn load_policies_from_file(path: PathBuf) -> Result<Json<Vec<Policy>>, Box<dyn Error>> {
     // check if file exists
     if !path.exists() {
         return Err("File does not exist".into());
@@ -62,26 +63,26 @@ async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn Erro
         return Err(format!("Failed to read file: {}", err).into());
     }
 
-    let entities: Entities = match serde_json::from_str(&contents) {
-        Ok(entities) => entities,
+    let policies: Vec<Policy> = match rocket::serde::json::from_str(&contents) {
+        Ok(policies) => policies,
         Err(err) => return Err(format!("Failed to deserialize JSON: {}", err).into()),
     };
     
-    Ok(entities)
+    Ok(Json(policies))
 }
 
 #[async_trait::async_trait]
-impl Fairing for InitDataFairing {
+impl Fairing for InitPoliciesFairing {
     async fn on_ignite(&self, rocket: Rocket<Build>) -> Result<Rocket<Build>, Rocket<Build>> {
         let config = rocket.state::<config::Config>().unwrap();
-        init(config, rocket.state::<Box<dyn DataStore>>().unwrap()).await;
+        init(config, rocket.state::<Box<dyn PolicyStore>>().unwrap()).await;
 
         Ok(rocket)
     }
 
     fn info(&self) -> Info {
         Info {
-            name: "Init Data",
+            name: "Init Policies",
             kind: Kind::Ignite
         }
     }
