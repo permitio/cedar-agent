@@ -21,7 +21,6 @@ mod logger;
 mod routes;
 mod schemas;
 mod services;
-mod load_data;
 
 #[rocket::main]
 async fn main() {
@@ -30,7 +29,8 @@ async fn main() {
     let server_config: rocket::figment::Figment = config.borrow().into();
     let launch_result = rocket::custom(server_config)
         .attach(common::DefaultContentType::new(ContentType::JSON))
-        .attach(load_data::InitDataFairing)
+        .attach(services::data::load_from_file::InitDataFairing)
+        .attach(services::policies::load_from_file::InitPoliciesFairing)
         .manage(config)
         .manage(Box::new(MemoryPolicyStore::new()) as Box<dyn PolicyStore>)
         .manage(Box::new(MemoryDataStore::new()) as Box<dyn DataStore>)
