@@ -52,10 +52,21 @@ async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn Erro
         return Err("File is not a json file".into());
     }
 
-    let mut file = File::open(&path)?;
+    let mut file = match File::open(&path) {
+        Ok(file) => file,
+        Err(err) => return Err(format!("Failed to open file: {}", err).into()),
+    };
+
     let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    let entities: Entities = serde_json::from_str(&contents)?;
+    if let Err(err) = file.read_to_string(&mut contents) {
+        return Err(format!("Failed to read file: {}", err).into());
+    }
+
+    let entities: Entities = match serde_json::from_str(&contents) {
+        Ok(entities) => entities,
+        Err(err) => return Err(format!("Failed to deserialize JSON: {}", err).into()),
+    };
+    
     Ok(entities)
 }
 
