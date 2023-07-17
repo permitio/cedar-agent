@@ -1,6 +1,7 @@
 use fmt::Debug;
 use std::borrow::Borrow;
 use std::fmt;
+use std::path::PathBuf;
 
 use clap::Parser;
 use log::LevelFilter;
@@ -19,9 +20,9 @@ pub struct Config {
     #[arg(short, long, value_enum)]
     pub log_level: Option<LevelFilter>,
     #[arg(short, long)]
-    pub data: Option<String>,
+    pub data: Option<PathBuf>,
     #[arg(long)]
-    pub policy: Option<String>,
+    pub policy: Option<PathBuf>,
 }
 
 impl Into<rocket::figment::Figment> for &Config {

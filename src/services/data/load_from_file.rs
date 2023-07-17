@@ -15,14 +15,14 @@ use crate::schemas::data::Entities;
 pub struct InitDataFairing;
 
 pub(crate) async fn init(conf: &config::Config, data_store: &Box<dyn DataStore>) {
-    let file_path = conf.data.clone().unwrap_or("".to_string());
 
-    if file_path.is_empty() {
+    if conf.data.is_none() {
         return;
     }
 
-    let entities_file_path = PathBuf::from(&file_path);
-    let entities = match load_entities_from_file(entities_file_path).await {
+    let file_path = conf.data.clone().unwrap();
+    let entities_file_path = &file_path;
+    let entities = match load_entities_from_file(entities_file_path.to_path_buf()).await {
         Ok(entities) => entities,
         Err(err) => {
             error!("Failed to load entities from file: {}", err);
@@ -32,7 +32,7 @@ pub(crate) async fn init(conf: &config::Config, data_store: &Box<dyn DataStore>)
 
     match data_store.update_entities(entities).await {
         Ok(entities) => {
-            info!("Successfully updated entities from file {}: {} entities", &file_path, entities.len());
+            info!("Successfully updated entities from file {}: {} entities", &file_path.display(), entities.len());
         }
         Err(err) => {
             error!("Failed to update entities: {}", err);
@@ -41,13 +41,12 @@ pub(crate) async fn init(conf: &config::Config, data_store: &Box<dyn DataStore>)
     };
 }
 
-async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn Error>> {
-    // check if file exists
-    if !path.exists() {
+pub async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn Error>> {
+    
+    if !path.try_exists().unwrap_or(false) || !path.is_file() {
         return Err("File does not exist".into());
     }
-
-    // check if is a valid json file
+    
     if path.extension().unwrap() != "json" {
         return Err("File is not a json file".into());
     }
@@ -73,8 +72,13 @@ async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn Erro
 #[async_trait::async_trait]
 impl Fairing for InitDataFairing {
     async fn on_ignite(&self, rocket: Rocket<Build>) -> Result<Rocket<Build>, Rocket<Build>> {
-        let config = rocket.state::<config::Config>().unwrap();
-        init(config, rocket.state::<Box<dyn DataStore>>().unwrap()).await;
+        let config = rocket.state::<config::Config>();
+
+        if config.is_none() {
+            return Ok(rocket);
+        }
+
+        init(config.unwrap(), rocket.state::<Box<dyn DataStore>>().unwrap()).await;
 
         Ok(rocket)
     }

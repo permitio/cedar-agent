@@ -261,7 +261,6 @@ dependencies = [
  "rocket",
  "rocket_okapi",
  "serde",
- "serde_json",
  "thiserror",
  "tokio",
 ]

@@ -16,14 +16,14 @@ use crate::config;
 pub struct InitPoliciesFairing;
 
 pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicyStore>) {
-    let file_path = conf.policy.clone().unwrap_or("".to_string());
 
-    if file_path.is_empty() {
+    if conf.policy.is_none() {
         return;
     }
 
-    let policies_file_path = PathBuf::from(&file_path);
-    let policies = match load_policies_from_file(policies_file_path).await {
+    let file_path = conf.policy.clone().unwrap();
+    let policies_file_path = &file_path;
+    let policies = match load_policies_from_file(policies_file_path.to_path_buf()).await {
         Ok(policies) => policies,
         Err(err) => {
             error!("Failed to load policies from file: {}", err);
@@ -33,7 +33,7 @@ pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicySto
 
     match policy_store.update_policies(policies.into_inner()).await {
         Ok(policies) => {
-            info!("Successfully updated policies from file {}: {} policies", &file_path, policies.len());
+            info!("Successfully updated policies from file {}: {} policies", &file_path.display(), policies.len());
         }
         Err(err) => {
             error!("Failed to update policies: {}", err);
@@ -42,13 +42,12 @@ pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicySto
     };
 }
 
-async fn load_policies_from_file(path: PathBuf) -> Result<Json<Vec<Policy>>, Box<dyn Error>> {
-    // check if file exists
-    if !path.exists() {
+pub async fn load_policies_from_file(path: PathBuf) -> Result<Json<Vec<Policy>>, Box<dyn Error>> {
+
+    if !path.try_exists().unwrap_or(false) || !path.is_file() {
         return Err("File does not exist".into());
     }
 
-    // check if is a valid json file
     if path.extension().unwrap() != "json" {
         return Err("File is not a json file".into());
     }
@@ -74,8 +73,13 @@ async fn load_policies_from_file(path: PathBuf) -> Result<Json<Vec<Policy>>, Box
 #[async_trait::async_trait]
 impl Fairing for InitPoliciesFairing {
     async fn on_ignite(&self, rocket: Rocket<Build>) -> Result<Rocket<Build>, Rocket<Build>> {
-        let config = rocket.state::<config::Config>().unwrap();
-        init(config, rocket.state::<Box<dyn PolicyStore>>().unwrap()).await;
+        let config = rocket.state::<config::Config>();
+
+        if config.is_none() {
+            return Ok(rocket);
+        }
+
+        init(config.unwrap(), rocket.state::<Box<dyn PolicyStore>>().unwrap()).await;
 
         Ok(rocket)
     }
