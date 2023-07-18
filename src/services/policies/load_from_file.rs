@@ -17,11 +17,11 @@ pub struct InitPoliciesFairing;
 
 pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicyStore>) {
 
-    if conf.policy.is_none() {
+    if conf.policies.is_none() {
         return;
     }
 
-    let file_path = conf.policy.clone().unwrap();
+    let file_path = conf.policies.clone().unwrap();
     let policies_file_path = &file_path;
     let policies = match load_policies_from_file(policies_file_path.to_path_buf()).await {
         Ok(policies) => policies,

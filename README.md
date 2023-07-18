@@ -98,6 +98,9 @@ Cedar Agent configuration is available using environment variables and command l
 - Load data from json file. Defaults to `None`.  
   `DATA` environment variable.
   `--data`, `-d` command line argument.
+- Load policies from json file. Defaults to `None`.
+  `POLICIES` environment variable.
+  `--policies`, `-p` command line argument.
 
 **command line arguments take precedence over environment variables when configuring the Cedar Agent**
 

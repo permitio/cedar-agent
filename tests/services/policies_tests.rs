@@ -1,11 +1,17 @@
 use std::str::FromStr;
+use std::sync::Arc;
+use std::path::PathBuf;
+use std::fs::File;
+use std::io::Write;
 
 use cedar_policy::PolicyId;
 
 use crate::services::utils::*;
+
 use cedar_agent::policies::memory::MemoryPolicyStore;
 use cedar_agent::schemas::policies::PolicyUpdate;
 use cedar_agent::PolicyStore;
+use cedar_agent::policies::load_from_file::load_policies_from_file;
 
 #[tokio::test]
 async fn memory_tests() {
@@ -81,4 +87,21 @@ async fn memory_tests() {
     assert!(policy_set
         .policy(&PolicyId::from_str("test").unwrap())
         .is_none());
+}
+
+#[tokio::test]
+async fn test_load_policies_from_file() {
+    let temp_file_path = Arc::new(PathBuf::from("test_policies.json"));
+    let test_data = r#"[{
+        "id": "test",
+        "content": "permit(principal in Role::\"Viewer\",action in [Action::\"get\",Action::\"list\"],resource == Document::\"cedar-agent.pdf\");"
+    }]"#;
+    let mut temp_file = File::create(&*temp_file_path.clone()).unwrap();
+    temp_file.write_all(test_data.as_bytes()).unwrap();
+
+    let policies = load_policies_from_file(temp_file_path.clone().to_path_buf()).await.unwrap();
+    assert_eq!(policies.len(), 1);
+    assert_eq!(policies[0].id, "test".to_string());
+
+    std::fs::remove_file(temp_file_path.clone().to_path_buf()).unwrap();
 }
