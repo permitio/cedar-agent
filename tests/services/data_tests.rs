@@ -1,7 +1,4 @@
-use std::sync::Arc;
 use std::path::PathBuf;
-use std::fs::File;
-use std::io::Write;
 
 use crate::services::utils;
 
@@ -27,25 +24,6 @@ async fn memory_tests() {
 
 #[tokio::test]
 async fn test_load_entities_from_file() {
-    let temp_file_path = Arc::new(PathBuf::from("test_entities.json"));
-    let test_data = r#"[{
-        "attrs": {},
-        "parents": [
-          {
-            "id": "Admin",
-            "type": "Role"
-          }
-        ],
-        "uid": {
-          "id": "admin.1@domain.com",
-          "type": "User"
-        }
-    }]"#;
-    let mut temp_file = File::create(&*temp_file_path.clone()).unwrap();
-    temp_file.write_all(test_data.as_bytes()).unwrap();
-
-    let entities = load_entities_from_file(temp_file_path.clone().to_path_buf()).await.unwrap();
-    assert_eq!(entities.len(), 1);
-
-    std::fs::remove_file(temp_file_path.clone().to_path_buf()).unwrap();
+    let entities = load_entities_from_file(PathBuf::from("./examples/data.json")).await.unwrap();
+    assert_eq!(entities.len(), 12);
 }
