@@ -7,6 +7,7 @@ use crate::schemas::policies::{Policy, PolicyUpdate};
 
 pub(crate) mod errors;
 pub mod memory;
+pub mod load_from_file;
 
 #[async_trait]
 pub trait PolicyStore: Send + Sync {

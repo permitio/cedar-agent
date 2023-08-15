@@ -1,6 +1,7 @@
 use fmt::Debug;
 use std::borrow::Borrow;
 use std::fmt;
+use std::path::PathBuf;
 
 use clap::Parser;
 use log::LevelFilter;
@@ -18,6 +19,10 @@ pub struct Config {
     pub port: Option<u16>,
     #[arg(short, long, value_enum)]
     pub log_level: Option<LevelFilter>,
+    #[arg(short, long)]
+    pub data: Option<PathBuf>,
+    #[arg(long)]
+    pub policies: Option<PathBuf>,
 }
 
 impl Into<rocket::figment::Figment> for &Config {
@@ -34,6 +39,12 @@ impl Into<rocket::figment::Figment> for &Config {
         } else {
             config = config.merge(("port", 8180))
         }
+        if let Some(data) = self.data.borrow() {
+            config = config.merge(("data", data));
+        }
+        if let Some(policies) = self.policies.borrow() {
+            config = config.merge(("policies", policies));
+        }
 
         config
     }
@@ -46,6 +57,8 @@ impl Config {
             addr: None,
             port: None,
             log_level: None,
+            data: None,
+            policies: None,
         }
     }
 
@@ -56,6 +69,8 @@ impl Config {
             config.addr = c.addr.or(config.addr);
             config.port = c.port.or(config.port);
             config.log_level = c.log_level.or(config.log_level);
+            config.data = c.data.or(config.data);
+            config.policies = c.policies.or(config.policies);
         }
 
         config

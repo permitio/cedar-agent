@@ -1,11 +1,14 @@
 use std::str::FromStr;
+use std::path::PathBuf;
 
 use cedar_policy::PolicyId;
 
 use crate::services::utils::*;
+
 use cedar_agent::policies::memory::MemoryPolicyStore;
 use cedar_agent::schemas::policies::PolicyUpdate;
 use cedar_agent::PolicyStore;
+use cedar_agent::policies::load_from_file::load_policies_from_file;
 
 #[tokio::test]
 async fn memory_tests() {
@@ -81,4 +84,11 @@ async fn memory_tests() {
     assert!(policy_set
         .policy(&PolicyId::from_str("test").unwrap())
         .is_none());
+}
+
+#[tokio::test]
+async fn test_load_policies_from_file() {
+    let policies = load_policies_from_file(PathBuf::from("./examples/policies.json")).await.unwrap();
+    assert_eq!(policies.len(), 3);
+    assert_eq!(policies[0].id, "admins-policy".to_string());
 }

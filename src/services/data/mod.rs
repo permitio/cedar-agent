@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use crate::schemas::data as schemas;
 
 pub mod memory;
+pub mod load_from_file;
 
 #[async_trait]
 pub trait DataStore: Send + Sync {
