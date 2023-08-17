@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::error::Error;
 use std::str::FromStr;
 
-use cedar_policy::{Context, EntityUid, EvaluationError, Request, Response};
+use cedar_policy::{Context, EntityUid, EvaluationError, Request, Response, Entities};
 use cedar_policy_core::authorizer::Decision;
 use cedar_policy_core::parser::err::ParseErrors;
 
@@ -17,18 +17,31 @@ pub struct AuthorizationCall {
     action: Option<String>,
     resource: Option<String>,
     context: Option<serde_json::Value>,
+    entities: Option<serde_json::Value>,
     /// Optional schema in JSON format.
     /// If present, this will inform the parsing: for instance, it will allow
     /// `__entity` and `__extn` escapes to be implicit, and it will error if
     /// attributes have the wrong types (e.g., string instead of integer).
     /// currently unsupported
     #[schemars(skip)]
-    policies: Option<String>,
-    /// JSON object containing the entities data, in "natural JSON" form -- same
-    /// format as expected by EntityJsonParser
-    /// currently unsupported
-    #[schemars(skip)]
-    entities: Option<serde_json::Value>,
+    policies: Option<String>,  
+    
+}
+
+pub struct AuthorizationRequest {
+    request: Request,
+    entities: Entities
+}
+
+impl AuthorizationRequest {
+
+    pub fn new(request: Request, entities: Entities) -> AuthorizationRequest {
+        AuthorizationRequest { request, entities }
+    }
+
+    pub fn get_request_entities(self) -> (Request, Entities) {
+        (self.request, self.entities)
+    }
 }
 
 fn string_to_euid(optional_str: Option<String>) -> Result<Option<EntityUid>, ParseErrors> {
@@ -41,10 +54,10 @@ fn string_to_euid(optional_str: Option<String>) -> Result<Option<EntityUid>, Par
     }
 }
 
-impl TryInto<Request> for AuthorizationCall {
+impl TryInto<AuthorizationRequest> for AuthorizationCall {
     type Error = Box<dyn Error>;
 
-    fn try_into(self) -> Result<Request, Self::Error> {
+    fn try_into(self) -> Result<AuthorizationRequest, Self::Error> {
         let principal = match string_to_euid(self.principal) {
             Ok(p) => p,
             Err(e) => return Err(e.into()),
@@ -57,6 +70,15 @@ impl TryInto<Request> for AuthorizationCall {
             Ok(r) => r,
             Err(e) => return Err(e.into()),
         };
+        let entities = match self.entities {            
+            Some(et) => match Entities::from_json_value(et, None) {
+                Ok(et) => {
+                    et
+                },
+                Err(e) => return Err(e.into()),
+            },
+            None => Entities::empty(),
+        };
         let context = match self.context {
             Some(c) => match Context::from_json_value(c, None) {
                 Ok(c) => c,
@@ -64,7 +86,7 @@ impl TryInto<Request> for AuthorizationCall {
             },
             None => Context::empty(),
         };
-        Ok(Request::new(principal, action, resource, context))
+        Ok(AuthorizationRequest::new(Request::new(principal, action, resource, context), entities))
     }
 }
 
