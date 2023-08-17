@@ -32,7 +32,8 @@ pub async fn is_authorized(
 
     let (request, entities) = &query.get_request_entities();    
 
-    /// temporary solution for now. Eventually this logic will be replaced in favor of performing live patch updates  
+    // Temporary solution to override fetching entities from the datastore by directly passing it to the REST body. 
+    // Eventually this logic will be replaced in favor of performing live patch updates  
     let request_entities: cedar_policy::Entities = if *entities == cedar_policy::Entities::empty() { data_store.entities().await } else { entities.clone() };
     
     info!("Querying cedar using {:?}", &request);
