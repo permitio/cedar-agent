@@ -33,7 +33,7 @@ pub async fn is_authorized(
     let (request, entities) = &query.get_request_entities();    
 
     /// temporary solution for now. Eventually this logic will be replaced in favor of performing live patch updates  
-    let request_entities: cedar_policy::Entities = if *entities == cedar_policy::Entities::empty() { data_store.entities().await } else { entities.clone() };
+    let request_entities: cedar_policy::Entities = if *entities == cedar_policy::Entities::empty() { data_store.entities().await } else { entities };
     
     info!("Querying cedar using {:?}", &request);
     let answer = authorizer.is_authorized(&request, &policies, &request_entities);
