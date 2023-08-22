@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::error::Error;
 use std::str::FromStr;
 
+
 use cedar_policy::{Context, EntityUid, EvaluationError, Request, Response, Entities};
 use cedar_policy_core::authorizer::Decision;
 use cedar_policy_core::parser::err::ParseErrors;
@@ -39,6 +40,10 @@ impl AuthorizationRequest {
         AuthorizationRequest { request, entities }
     }
 
+    pub fn get_entities(self) -> Option<Entities> {
+        self.entities
+    }
+
     pub fn get_request_entities(self) -> (Request, Option<Entities>) {        
 
         (self.request, self.entities)
@@ -53,6 +58,14 @@ fn string_to_euid(optional_str: Option<String>) -> Result<Option<EntityUid>, Par
         },
         None => Ok(None),
     }
+}
+
+impl AuthorizationCall {
+
+    pub fn new(principal: Option<String>, action: Option<String>, resource: Option<String>, context:Option<rocket::serde::json::Value>, entities:Option<rocket::serde::json::Value>, policies: Option<String>) -> AuthorizationCall {
+        AuthorizationCall { principal, action, resource, context, entities, policies }
+    }
+
 }
 
 impl TryInto<AuthorizationRequest> for AuthorizationCall {
