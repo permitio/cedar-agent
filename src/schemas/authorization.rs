@@ -30,16 +30,17 @@ pub struct AuthorizationCall {
 
 pub struct AuthorizationRequest {
     request: Request,
-    entities: Entities
+    entities: Option<Entities>
 }
 
 impl AuthorizationRequest {
 
-    pub fn new(request: Request, entities: Entities) -> AuthorizationRequest {
+    pub fn new(request: Request, entities: Option<Entities>) -> AuthorizationRequest {
         AuthorizationRequest { request, entities }
     }
 
-    pub fn get_request_entities(self) -> (Request, Entities) {
+    pub fn get_request_entities(self) -> (Request, Option<Entities>) {        
+
         (self.request, self.entities)
     }
 }
@@ -73,11 +74,11 @@ impl TryInto<AuthorizationRequest> for AuthorizationCall {
         let entities = match self.entities {            
             Some(et) => match Entities::from_json_value(et, None) {
                 Ok(et) => {
-                    et
+                    Some(et)
                 },
                 Err(e) => return Err(e.into()),
             },
-            None => Entities::empty(),
+            None => None,
         };
         let context = match self.context {
             Some(c) => match Context::from_json_value(c, None) {
