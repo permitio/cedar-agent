@@ -267,9 +267,9 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy"
-version = "2.2.0"
+version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7eb8e9baab76a2cdd7755acd7b95846b5e5e64610ee17a2011ca038ad93e644e"
+checksum = "c8268d8ce60ed899ad1a51896847e0da372e58ec1de388453bc054b43155bbc6"
 dependencies = [
  "cedar-policy-core",
  "cedar-policy-validator",
@@ -284,9 +284,9 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy-core"
-version = "2.2.1"
+version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adcc1370fc263af1cb849cfb2e6e53ad047ab1feb46b6e98d819420eae7d6d26"
+checksum = "961a641c3ac293d1766d6f90b36798b5311fc92e8ab6ddf9a9bffeaf82b7430a"
 dependencies = [
  "arbitrary",
  "either",
@@ -307,9 +307,9 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy-validator"
-version = "2.2.0"
+version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "181dd950149690f99394b47a861142f96365ee60f3902cf5fe4ed29dbec69fbd"
+checksum = "cb18d271e11c508d56097d7ce813685ec417a64e3a6e437afbc255f52881c049"
 dependencies = [
  "arbitrary",
  "cedar-policy-core",
