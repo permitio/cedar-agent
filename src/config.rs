@@ -81,7 +81,7 @@ impl Config {
     }
 
     fn from_env() -> Self {
-        match envy::from_env() {
+        match envy::prefixed("CEDAR_AGENT_").from_env() {
             Ok(env) => env,
             Err(_) => Self::new(),
         }
