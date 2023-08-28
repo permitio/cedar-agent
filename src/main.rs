@@ -2,7 +2,9 @@ extern crate core;
 extern crate rocket;
 
 use std::borrow::Borrow;
+use std::process::{exit, ExitCode};
 
+use log::{error, info};
 use rocket::catchers;
 use rocket::http::ContentType;
 use rocket_okapi::settings::UrlObject;
@@ -23,7 +25,7 @@ mod schemas;
 mod services;
 
 #[rocket::main]
-async fn main() {
+async fn main() -> ExitCode {
     let config = config::init();
     logger::init(&config);
     let server_config: rocket::figment::Figment = config.borrow().into();
@@ -83,8 +85,14 @@ async fn main() {
         )
         .launch()
         .await;
-    match launch_result {
-        Ok(_) => println!("Rocket shut down gracefully."),
-        Err(err) => println!("Rocket had an error: {}", err),
+    return match launch_result {
+        Ok(_) => {
+            info!("Cedar-Agent shut down gracefully.");
+            ExitCode::SUCCESS
+        }
+        Err(err) => {
+            error!("Cedar-Agent shut down with error: {}", err);
+            ExitCode::FAILURE
+        }
     };
 }
