@@ -222,6 +222,11 @@ using Rapidoc and Swagger UI, that you can access through the following routes:
 
 **For more details about the performed requests you can check the [examples directory](examples)**
 
+## Run Cedar-agents at scale with OPAL
+Want to run multiple Cedar-agents and have them loaded with the data and policeis you need? Try [OPAL](https://github.com/permitio/opal).
+OPAL (Open Policy Administration Layer) is a sister project to Cedar-Agent, which has become the de-facto way to manage policy agents (including others like OPA) at scale.
+Check out the [tutorial for Cedar+OPAL in the OPAL docs](https://docs.opal.ac/tutorials/cedar).
+
 ## Community
 
 Come talk to us about Cedar Agent, or authorization in general - we would love to hear from you ❤️
