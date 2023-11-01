@@ -81,10 +81,16 @@ impl Config {
     }
 
     fn from_env() -> Self {
-        match envy::from_env() {
+        let old_env = match envy::from_env() {
             Ok(env) => env,
             Err(_) => Self::new(),
-        }
+        };
+        let env = match envy::prefixed("CEDAR_AGENT_").from_env() {
+            Ok(env) => env,
+            Err(_) => Self::new(),
+        };
+
+        Config::merge(vec![old_env, env])
     }
 }
 

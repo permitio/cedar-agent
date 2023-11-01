@@ -84,22 +84,22 @@ cargo build
 Cedar Agent configuration is available using environment variables and command line arguments.
 
 - The port on which the Cedar Agent will listen for incoming HTTP requests. Defaults to `8180`.  
-  `PORT` environment variable.  
+  `CEDAR_AGENT_PORT` environment variable.  
   `--port`, `-p` command line argument.
 - Authentication token to enforce using the `Authorization` header. Defaults to `None`.  
-  `AUTHENTICATION` environment variable.  
+  `CEDAR_AGENT_AUTHENTICATION` environment variable.  
   `--authentication`, `-a` command line argument.
 - The address of the HTTP server. Defaults to `127.0.0.1`.  
-  `ADDR` environment variable.  
+  `CEDAR_AGENT_ADDR` environment variable.  
   `--addr` command line argument.
 - The log level to filter logs. Defaults to `info`.  
-  `LOG_LEVEL` environment variable.  
+  `CEDAR_AGENT_LOG_LEVEL` environment variable.  
   `--log-level`, `-l` command line argument.
 - Load data from json file. Defaults to `None`.  
-  `DATA` environment variable.
+  `CEDAR_AGENT_DATA` environment variable.
   `--data`, `-d` command line argument.
 - Load policies from json file. Defaults to `None`.
-  `POLICIES` environment variable.
+  `CEDAR_AGENT_POLICIES` environment variable.
   `--policies` command line argument.
 
 **command line arguments take precedence over environment variables when configuring the Cedar Agent**
