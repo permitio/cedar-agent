@@ -84,22 +84,22 @@ cargo build
 Cedar Agent configuration is available using environment variables and command line arguments.
 
 - The port on which the Cedar Agent will listen for incoming HTTP requests. Defaults to `8180`.  
-  `PORT` environment variable.  
+  `CEDAR_AGENT_PORT` environment variable.  
   `--port`, `-p` command line argument.
 - Authentication token to enforce using the `Authorization` header. Defaults to `None`.  
-  `AUTHENTICATION` environment variable.  
+  `CEDAR_AGENT_AUTHENTICATION` environment variable.  
   `--authentication`, `-a` command line argument.
 - The address of the HTTP server. Defaults to `127.0.0.1`.  
-  `ADDR` environment variable.  
+  `CEDAR_AGENT_ADDR` environment variable.  
   `--addr` command line argument.
 - The log level to filter logs. Defaults to `info`.  
-  `LOG_LEVEL` environment variable.  
+  `CEDAR_AGENT_LOG_LEVEL` environment variable.  
   `--log-level`, `-l` command line argument.
 - Load data from json file. Defaults to `None`.  
-  `DATA` environment variable.
+  `CEDAR_AGENT_DATA` environment variable.
   `--data`, `-d` command line argument.
 - Load policies from json file. Defaults to `None`.
-  `POLICIES` environment variable.
+  `CEDAR_AGENT_POLICIES` environment variable.
   `--policies` command line argument.
 
 **command line arguments take precedence over environment variables when configuring the Cedar Agent**
@@ -221,6 +221,11 @@ using Rapidoc and Swagger UI, that you can access through the following routes:
    As you can see the user is denied access to the resource because no policy allows this request.
 
 **For more details about the performed requests you can check the [examples directory](examples)**
+
+## Run Cedar-agents at scale with OPAL
+Want to run multiple Cedar-agents and have them loaded with the data and policeis you need? Try [OPAL](https://github.com/permitio/opal).
+OPAL (Open Policy Administration Layer) is a sister project to Cedar-Agent, which has become the de-facto way to manage policy agents (including others like OPA) at scale.
+Check out the [tutorial for Cedar+OPAL in the OPAL docs](https://docs.opal.ac/tutorials/cedar).
 
 ## Community
 
