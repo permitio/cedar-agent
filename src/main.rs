@@ -2,7 +2,7 @@ extern crate core;
 extern crate rocket;
 
 use std::borrow::Borrow;
-use std::process::{exit, ExitCode};
+use std::process::ExitCode;
 
 use log::{error, info};
 use rocket::catchers;

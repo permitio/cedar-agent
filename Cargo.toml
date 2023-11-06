@@ -12,8 +12,8 @@ repository = "https://github.com/permitio/cedar-agent"
 [dependencies]
 async-lock = "2.7.0"
 async-trait = "0.1.68"
-cedar-policy = "2.3.2"
-cedar-policy-core = "2.3.2"
+cedar-policy = "2.4.2"
+cedar-policy-core = "2.4.2"
 clap = { version = "4.2.5", features = ["derive"] }
 envy = "0.4.2"
 log = "0.4.17"
