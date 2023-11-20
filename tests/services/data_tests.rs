@@ -79,12 +79,7 @@ async fn test_load_entities_from_authz_call() {
         },
         {
             "attrs": {},
-            "parents": [
-                {
-                    "id": "Admin",
-                    "type": "Role"
-                }
-            ],
+            "parents": [],
             "uid": {
                 "id": "delete",
                 "type": "Action"

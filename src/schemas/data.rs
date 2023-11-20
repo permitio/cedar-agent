@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use cedar_policy_core::entities::{
-    EntitiesError, EntityJSON, EntityJsonParser, NullSchema, TCComputation,
+    EntitiesError, EntityJSON, EntityJsonParser, NoEntitiesSchema, TCComputation,
 };
 use cedar_policy_core::extensions::Extensions;
 use cedar_policy_core::{ast, entities};
@@ -31,7 +31,7 @@ impl TryInto<ast::Entity> for Entity {
 
     fn try_into(self) -> Result<ast::Entity, Self::Error> {
         debug!("Parsing entity into ast format");
-        let parser: EntityJsonParser<NullSchema> =
+        let parser: EntityJsonParser<NoEntitiesSchema> =
             EntityJsonParser::new(None, Extensions::all_available(), TCComputation::ComputeNow);
         let entities = match parser.from_json_value(self.0) {
             Ok(entities) => entities,
@@ -64,7 +64,7 @@ impl TryInto<entities::Entities> for Entities {
 
     fn try_into(self) -> Result<entities::Entities, Self::Error> {
         debug!("Parsing entities into ast format");
-        let parser: EntityJsonParser<NullSchema> =
+        let parser: EntityJsonParser<NoEntitiesSchema> =
             EntityJsonParser::new(None, Extensions::all_available(), TCComputation::ComputeNow);
         parser.from_json_value(json!(self.0))
     }

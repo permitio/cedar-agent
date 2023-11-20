@@ -40,12 +40,7 @@
   },
   {
     "attrs": {},
-    "parents": [
-      {
-        "id": "Admin",
-        "type": "Role"
-      }
-    ],
+    "parents": [],
     "uid": {
       "id": "delete",
       "type": "Action"
@@ -53,12 +48,7 @@
   },
   {
     "attrs": {},
-    "parents": [
-      {
-        "id": "Admin",
-        "type": "Role"
-      }
-    ],
+    "parents": [],
     "uid": {
       "id": "create",
       "type": "Action"
@@ -74,16 +64,7 @@
   },
   {
     "attrs": {},
-    "parents": [
-      {
-        "id": "Admin",
-        "type": "Role"
-      },
-      {
-        "id": "Editor",
-        "type": "Role"
-      }
-    ],
+    "parents": [],
     "uid": {
       "id": "update",
       "type": "Action"
@@ -91,20 +72,7 @@
   },
   {
     "attrs": {},
-    "parents": [
-      {
-        "id": "Admin",
-        "type": "Role"
-      },
-      {
-        "id": "Editor",
-        "type": "Role"
-      },
-      {
-        "id": "Viewer",
-        "type": "Role"
-      }
-    ],
+    "parents": [],
     "uid": {
       "id": "list",
       "type": "Action"
@@ -112,20 +80,7 @@
   },
   {
     "attrs": {},
-    "parents": [
-      {
-        "id": "Admin",
-        "type": "Role"
-      },
-      {
-        "id": "Editor",
-        "type": "Role"
-      },
-      {
-        "id": "Viewer",
-        "type": "Role"
-      }
-    ],
+    "parents": [],
     "uid": {
       "id": "get",
       "type": "Action"

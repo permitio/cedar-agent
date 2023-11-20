@@ -72,16 +72,7 @@ pub(crate) fn entities() -> Entities {
       },
       {
         "attrs": {},
-        "parents": [
-          {
-            "id": "document",
-            "type": "ResourceType"
-          },
-          {
-            "id": "Editor",
-            "type": "Role"
-          }
-        ],
+        "parents": [],
         "uid": {
           "id": "document:delete",
           "type": "Action"
@@ -91,12 +82,8 @@ pub(crate) fn entities() -> Entities {
         "attrs": {},
         "parents": [
           {
-            "id": "document",
-            "type": "ResourceType"
-          },
-          {
-            "id": "Editor",
-            "type": "Role"
+            "id": "document:update",
+            "type": "Action"
           }
         ],
         "uid": {
@@ -116,12 +103,8 @@ pub(crate) fn entities() -> Entities {
         "attrs": {},
         "parents": [
           {
-            "id": "Editor",
-            "type": "Role"
-          },
-          {
-            "id": "document",
-            "type": "ResourceType"
+            "id": "document:delete",
+            "type": "Action"
           }
         ],
         "uid": {
@@ -133,12 +116,8 @@ pub(crate) fn entities() -> Entities {
         "attrs": {},
         "parents": [
           {
-            "id": "document",
-            "type": "ResourceType"
-          },
-          {
-            "id": "Editor",
-            "type": "Role"
+            "id": "document:get",
+            "type": "Action"
           }
         ],
         "uid": {
@@ -148,16 +127,7 @@ pub(crate) fn entities() -> Entities {
       },
       {
         "attrs": {},
-        "parents": [
-          {
-            "id": "document",
-            "type": "ResourceType"
-          },
-          {
-            "id": "Editor",
-            "type": "Role"
-          }
-        ],
+        "parents": [],
         "uid": {
           "id": "document:get",
           "type": "Action"
