@@ -23,6 +23,8 @@ pub struct Config {
     pub data: Option<PathBuf>,
     #[arg(long)]
     pub policies: Option<PathBuf>,
+    #[arg(short, long)]
+    pub schema: Option<PathBuf>,
 }
 
 impl Into<rocket::figment::Figment> for &Config {
@@ -45,6 +47,9 @@ impl Into<rocket::figment::Figment> for &Config {
         if let Some(policies) = self.policies.borrow() {
             config = config.merge(("policies", policies));
         }
+        if let Some(schema) = self.schema.borrow() {
+            config = config.merge(("schema", schema));
+        }
 
         config
     }
@@ -59,6 +64,7 @@ impl Config {
             log_level: None,
             data: None,
             policies: None,
+            schema: None
         }
     }
 
@@ -71,6 +77,7 @@ impl Config {
             config.log_level = c.log_level.or(config.log_level);
             config.data = c.data.or(config.data);
             config.policies = c.policies.or(config.policies);
+            config.schema = c.schema.or(config.schema);
         }
 
         config

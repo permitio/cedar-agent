@@ -6,8 +6,8 @@ use cedar_policy::Schema as CedarSchema;
 use cedar_policy::SchemaError;
 use log::{debug, error, info};
 
-use crate::schemas::schemas::Schema as InternalSchema;
-use crate::services::schemas::SchemaStore;
+use crate::schemas::schema::Schema as InternalSchema;
+use crate::services::schema::SchemaStore;
 
 pub struct Schema(CedarSchema, InternalSchema);
 

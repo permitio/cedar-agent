@@ -2,9 +2,10 @@ use async_trait::async_trait;
 use cedar_policy::Schema as CedarSchema;
 use cedar_policy::SchemaError;
 
-use crate::schemas::schemas::Schema as InternalSchema;
+use crate::schemas::schema::Schema as InternalSchema;
 
-pub mod schemas;
+pub mod schema;
+mod load_from_file;
 
 #[async_trait]
 pub trait SchemaStore: Send + Sync {
