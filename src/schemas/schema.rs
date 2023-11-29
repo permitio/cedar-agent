@@ -12,7 +12,7 @@ pub struct Schema(Value);
 impl Schema {
     pub fn empty() -> Self {
         Self {
-            0: Value::Null
+            0: Value::Array(vec![])
         }
     }
 }

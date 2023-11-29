@@ -14,6 +14,8 @@ use crate::services::data::memory::MemoryDataStore;
 use crate::services::data::DataStore;
 use crate::services::policies::memory::MemoryPolicyStore;
 use crate::services::policies::PolicyStore;
+use crate::services::schema::memory::MemorySchemaStore;
+use crate::services::schema::SchemaStore;
 
 mod authn;
 mod common;
@@ -36,6 +38,7 @@ async fn main() -> ExitCode {
         .manage(config)
         .manage(Box::new(MemoryPolicyStore::new()) as Box<dyn PolicyStore>)
         .manage(Box::new(MemoryDataStore::new()) as Box<dyn DataStore>)
+        .manage(Box::new(MemorySchemaStore::new()) as Box<dyn SchemaStore>)
         .manage(cedar_policy::Authorizer::new())
         .register(
             "/",
@@ -59,6 +62,9 @@ async fn main() -> ExitCode {
                 routes::data::update_entities,
                 routes::data::delete_entities,
                 routes::authorization::is_authorized,
+                routes::schema::get_schema,
+                routes::schema::update_schema,
+                routes::schema::delete_schema
             ],
         )
         .mount(

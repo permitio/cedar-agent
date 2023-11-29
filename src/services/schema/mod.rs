@@ -4,8 +4,8 @@ use cedar_policy::SchemaError;
 
 use crate::schemas::schema::Schema as InternalSchema;
 
-pub mod schema;
-mod load_from_file;
+pub mod memory;
+pub mod load_from_file;
 
 #[async_trait]
 pub trait SchemaStore: Send + Sync {
