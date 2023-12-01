@@ -64,6 +64,11 @@ impl SchemaStore for MemorySchemaStore {
         lock.cedar_schema()
     }
 
+    async fn schema_empty(&self) -> bool {
+        let lock = self.read().await;
+        lock.internal_schema().is_empty()
+    }
+
     async fn get_schema(&self) -> InternalSchema {
         info!("Getting stored schema");
         let lock = self.read().await;

@@ -4,7 +4,7 @@ use std::error::Error;
 
 use async_lock::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use async_trait::async_trait;
-use cedar_policy::{PolicySet, PolicySetError};
+use cedar_policy::{PolicySet, PolicySetError, Schema, Validator, ValidationMode, ValidationResult};
 use log::{debug, info};
 
 use crate::common;
@@ -37,6 +37,29 @@ impl Policies {
             policy_set.add(policy.clone()).unwrap();
         }
         self.1 = policy_set;
+    }
+
+    fn validate_policy(policy: &cedar_policy::Policy, schema: &Schema) -> (bool, String) {
+        // Copy the policy into its own set to pass to a validator.
+        let mut validation_set = PolicySet::new();
+        validation_set.add(policy.clone()).unwrap();
+        let validator = Validator::new(schema.clone());
+        let validation_result = Validator::validate(
+            &validator,
+            &validation_set,
+            ValidationMode::default()
+        );
+
+        if ValidationResult::validation_passed(&validation_result) {
+            (true, String::new())
+        } else {
+            let errs = ValidationResult::validation_errors(&validation_result);
+            let mut error_msg = String::from("");
+            for e in errs {
+                error_msg += &*format!("{}; ", e);
+            }
+            (false, error_msg)
+        }
     }
 }
 
@@ -85,17 +108,29 @@ impl PolicyStore for MemoryPolicyStore {
         }
     }
 
-    async fn create_policy(&self, policy: &Policy) -> Result<Policy, Box<dyn Error>> {
+    async fn create_policy(
+        &self,
+        policy: &Policy,
+        schema: Option<Schema>
+    ) -> Result<Policy, PolicyStoreError> {
         info!("Creating policy {}", policy.id);
         let mut lock = self.write().await;
         let stored_policy = lock.0.get(&policy.id);
         match stored_policy {
-            Some(_) => Err(PolicyStoreError::PolicySetError(PolicySetError::AlreadyDefined).into()),
+            Some(_) => Err(PolicyStoreError::PolicySetError(PolicySetError::AlreadyDefined)),
             None => {
                 let policy: cedar_policy::Policy = match policy.borrow().try_into() {
                     Ok(p) => p,
-                    Err(err) => return Err(err.into()),
+                    Err(err) => return Err(PolicyStoreError::PolicyParseError(err)),
                 };
+
+                if let Some(schema) = schema {
+                    let (result, msg) = Policies::validate_policy(&policy, &schema);
+                    if !result {
+                        return Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), msg));
+                    }
+                }
+
                 let policy_id = policy.id().to_string();
                 lock.0.insert(policy_id.clone(), policy);
                 lock.update_policy_set();
@@ -106,7 +141,11 @@ impl PolicyStore for MemoryPolicyStore {
         }
     }
 
-    async fn update_policies(&self, policies: Vec<Policy>) -> Result<Vec<Policy>, Box<dyn Error>> {
+    async fn update_policies(
+        &self,
+        policies: Vec<Policy>,
+        schema: Option<Schema>
+    ) -> Result<Vec<Policy>, Box<dyn Error>> {
         info!("Updating policies");
         let mut lock = self.write().await;
         let mut new_policies: HashMap<String, cedar_policy::Policy> = HashMap::new();
@@ -118,6 +157,14 @@ impl PolicyStore for MemoryPolicyStore {
                         Ok(p) => p,
                         Err(err) => return Err(err.into()),
                     };
+
+                    if let Some(schema) = schema.clone() {
+                        let (result, msg) = Policies::validate_policy(&policy, &schema);
+                        if !result {
+                            return Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), msg).into());
+                        }
+                    }
+
                     new_policies.insert(policy.id().to_string(), policy)
                 }
             };
@@ -133,6 +180,7 @@ impl PolicyStore for MemoryPolicyStore {
         &self,
         id: String,
         policy_update: PolicyUpdate,
+        schema: Option<Schema>,
     ) -> Result<Policy, Box<dyn Error>> {
         info!("Updating policy {}", id);
         let mut lock = self.write().await;
@@ -141,6 +189,14 @@ impl PolicyStore for MemoryPolicyStore {
             Ok(p) => p,
             Err(err) => return Err(err.into()),
         };
+
+        if let Some(schema) = schema {
+            let (result, msg) = Policies::validate_policy(&policy, &schema);
+            if !result {
+                return Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), msg).into());
+            }
+        }
+
         *lock
             .0
             .entry(String::from(id))

@@ -3,6 +3,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 use rocket::serde::json::Value;
+use rocket::serde::json::serde_json::Map;
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
 
@@ -12,8 +13,12 @@ pub struct Schema(Value);
 impl Schema {
     pub fn empty() -> Self {
         Self {
-            0: Value::Array(vec![])
+            0: Value::Object(Map::new())
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0 == Value::Object(Map::new())
     }
 }
 

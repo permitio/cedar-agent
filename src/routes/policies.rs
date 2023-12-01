@@ -8,7 +8,9 @@ use rocket_okapi::openapi;
 use crate::authn::ApiKey;
 use crate::errors::response::AgentError;
 use crate::schemas::policies as schemas;
+use crate::services::policies::errors::PolicyStoreError;
 use crate::services::policies::PolicyStore;
+use crate::services::schema::SchemaStore;
 
 #[openapi]
 #[get("/policies")]
@@ -41,11 +43,21 @@ pub async fn create_policy(
     _auth: ApiKey,
     policy: Json<schemas::Policy>,
     policy_store: &State<Box<dyn PolicyStore>>,
+    schema_store: &State<Box<dyn SchemaStore>>,
 ) -> Result<Json<schemas::Policy>, AgentError> {
     let policy = policy.into_inner();
-    let added_policy = policy_store.create_policy(policy.borrow()).await;
+    let schema =
+        if schema_store.schema_empty().await
+            { None }
+        else
+            { Some(schema_store.schema().await) };
+
+    let added_policy = policy_store.create_policy(policy.borrow(), schema).await;
     match added_policy {
         Ok(p) => Ok(Json::from(p)),
+        Err(PolicyStoreError::PolicyInvalid(_, reason)) => Err(AgentError::BadRequest {
+            reason
+        }),
         Err(_) => Err(AgentError::Duplicate {
             id: policy.id,
             object: "policy",
@@ -59,8 +71,18 @@ pub async fn update_policies(
     _auth: ApiKey,
     policy: Json<Vec<schemas::Policy>>,
     policy_store: &State<Box<dyn PolicyStore>>,
+    schema_store: &State<Box<dyn SchemaStore>>,
 ) -> Result<Json<Vec<schemas::Policy>>, AgentError> {
-    let updated_policy = policy_store.update_policies(policy.into_inner()).await;
+    let schema =
+        if schema_store.schema_empty().await
+        { None }
+        else
+        { Some(schema_store.schema().await) };
+
+    let updated_policy = policy_store.update_policies(
+        policy.into_inner(),
+        schema
+    ).await;
     match updated_policy {
         Ok(p) => Ok(Json::from(p)),
         Err(e) => Err(AgentError::BadRequest {
@@ -76,8 +98,20 @@ pub async fn update_policy(
     id: String,
     policy: Json<schemas::PolicyUpdate>,
     policy_store: &State<Box<dyn PolicyStore>>,
+    schema_store: &State<Box<dyn SchemaStore>>,
 ) -> Result<Json<schemas::Policy>, AgentError> {
-    let updated_policy = policy_store.update_policy(id, policy.into_inner()).await;
+    let schema =
+        if schema_store.schema_empty().await
+        { None }
+        else
+        { Some(schema_store.schema().await) };
+
+    let updated_policy = policy_store.update_policy(
+        id,
+        policy.into_inner(),
+        schema
+    ).await;
+
     match updated_policy {
         Ok(p) => Ok(Json::from(p)),
         Err(err) => Err(AgentError::BadRequest {

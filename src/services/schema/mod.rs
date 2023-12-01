@@ -10,6 +10,9 @@ pub mod load_from_file;
 #[async_trait]
 pub trait SchemaStore: Send + Sync {
     async fn schema(&self) -> CedarSchema;
+
+    async fn schema_empty(&self) -> bool;
+
     async fn get_schema(&self) -> InternalSchema;
     async fn update_schema(
         &self,
