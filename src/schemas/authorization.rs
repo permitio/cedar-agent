@@ -19,34 +19,41 @@ pub struct AuthorizationCall {
     resource: Option<String>,
     context: Option<serde_json::Value>,
     entities: Option<serde_json::Value>,
+    additional_entities: Option<serde_json::Value>,
     /// Optional schema in JSON format.
     /// If present, this will inform the parsing: for instance, it will allow
     /// `__entity` and `__extn` escapes to be implicit, and it will error if
     /// attributes have the wrong types (e.g., string instead of integer).
     /// currently unsupported
     #[schemars(skip)]
-    policies: Option<String>,  
-    
+    policies: Option<String>,
 }
 
 pub struct AuthorizationRequest {
     request: Request,
-    entities: Option<Entities>
+    entities: Option<Entities>,
+    additional_entities: Option<Entities>,
 }
 
 impl AuthorizationRequest {
-
-    pub fn new(request: Request, entities: Option<Entities>) -> AuthorizationRequest {
-        AuthorizationRequest { request, entities }
+    pub fn new(
+        request: Request,
+        entities: Option<Entities>,
+        additional_entities: Option<Entities>,
+    ) -> AuthorizationRequest {
+        AuthorizationRequest {
+            request,
+            entities,
+            additional_entities,
+        }
     }
 
     pub fn get_entities(self) -> Option<Entities> {
         self.entities
     }
 
-    pub fn get_request_entities(self) -> (Request, Option<Entities>) {        
-
-        (self.request, self.entities)
+    pub fn get_request_entities(self) -> (Request, Option<Entities>, Option<Entities>) {
+        (self.request, self.entities, self.additional_entities)
     }
 }
 
@@ -61,11 +68,25 @@ fn string_to_euid(optional_str: Option<String>) -> Result<Option<EntityUid>, Par
 }
 
 impl AuthorizationCall {
-
-    pub fn new(principal: Option<String>, action: Option<String>, resource: Option<String>, context:Option<rocket::serde::json::Value>, entities:Option<rocket::serde::json::Value>, policies: Option<String>) -> AuthorizationCall {
-        AuthorizationCall { principal, action, resource, context, entities, policies }
+    pub fn new(
+        principal: Option<String>,
+        action: Option<String>,
+        resource: Option<String>,
+        context: Option<rocket::serde::json::Value>,
+        entities: Option<rocket::serde::json::Value>,
+        additional_entities: Option<rocket::serde::json::Value>,
+        policies: Option<String>,
+    ) -> AuthorizationCall {
+        AuthorizationCall {
+            principal,
+            action,
+            resource,
+            context,
+            entities,
+            additional_entities,
+            policies,
+        }
     }
-
 }
 
 impl TryInto<AuthorizationRequest> for AuthorizationCall {
@@ -84,11 +105,18 @@ impl TryInto<AuthorizationRequest> for AuthorizationCall {
             Ok(r) => r,
             Err(e) => return Err(e.into()),
         };
-        let entities = match self.entities {            
+        let entities = match self.entities {
             Some(et) => match Entities::from_json_value(et, None) {
                 Ok(et) => {
                     Some(et)
                 },
+                Err(e) => return Err(e.into()),
+            },
+            None => None,
+        };
+        let additional_entities = match self.additional_entities {
+            Some(et) => match Entities::from_json_value(et, None) {
+                Ok(et) => Some(et),
                 Err(e) => return Err(e.into()),
             },
             None => None,
@@ -100,7 +128,11 @@ impl TryInto<AuthorizationRequest> for AuthorizationCall {
             },
             None => Context::empty(),
         };
-        Ok(AuthorizationRequest::new(Request::new(principal, action, resource, context), entities))
+        Ok(AuthorizationRequest::new(
+            Request::new(principal, action, resource, context),
+            entities,
+            additional_entities,
+        ))
     }
 }
 

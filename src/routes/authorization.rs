@@ -1,4 +1,4 @@
-use cedar_policy::Authorizer;
+use cedar_policy::{Authorizer, Entities};
 
 use log::info;
 
@@ -19,7 +19,7 @@ pub async fn is_authorized(
     data_store: &State<Box<dyn DataStore>>,
     authorizer: &State<Authorizer>,
     authorization_call: Json<AuthorizationCall>,
-) -> Result<Json<AuthorizationAnswer>, AgentError> {    
+) -> Result<Json<AuthorizationAnswer>, AgentError> {
     let policies = policy_store.policy_set().await;
     let query: AuthorizationRequest = match authorization_call.into_inner().try_into() {
         Ok(query) => query,
@@ -30,16 +30,29 @@ pub async fn is_authorized(
         }
     };
 
-    // Temporary solution to override fetching entities from the datastore by directly passing it to the REST body. 
-    // Eventually this logic will be replaced in favor of performing live patch updates  
-    let (request, entities) = &query.get_request_entities();    
+    // Temporary solution to override fetching entities from the datastore by directly passing it to the REST body.
+    // Eventually this logic will be replaced in favor of performing live patch updates
+    let (request, entities, additional_entities) = &query.get_request_entities();
 
     let request_entities = match entities {
         None => data_store.entities().await,
         Some(ents) => ents.clone()
-    };    
-    
+    };
+    let patched_entities = match additional_entities {
+        None => request_entities,
+        Some(ents) => {
+            match Entities::from_entities(request_entities.iter().chain(ents.iter()).cloned()) {
+                Ok(entities) => entities,
+                Err(err) => {
+                    return Err(AgentError::BadRequest {
+                        reason: err.to_string(),
+                    })
+                }
+            }
+        }
+    };
+
     info!("Querying cedar using {:?}", &request);
-    let answer = authorizer.is_authorized(&request, &policies, &request_entities);
+    let answer = authorizer.is_authorized(&request, &policies, &patched_entities);
     Ok(Json::from(AuthorizationAnswer::from(answer)))
 }

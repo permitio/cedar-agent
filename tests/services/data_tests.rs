@@ -35,11 +35,11 @@ async fn test_load_entities_from_file() {
 }
 
 #[tokio::test]
-async fn test_load_empty_entities_from_authz_call() {   
+async fn test_load_empty_entities_from_authz_call() {
 
     let entities: String = String::from("[]");
 
-    let query = make_authz_call(entities);        
+    let query = make_authz_call(entities);
 
     match query {
         Ok(req) => assert_eq!(req.get_entities().unwrap(), Entities::empty()),
@@ -48,7 +48,7 @@ async fn test_load_empty_entities_from_authz_call() {
 }
 
 #[tokio::test]
-async fn test_load_no_entities_from_authz_call() {       
+async fn test_load_no_entities_from_authz_call() {
 
     let query = make_authz_call_no_entities();
 
@@ -60,7 +60,7 @@ async fn test_load_no_entities_from_authz_call() {
 
 
 #[tokio::test]
-async fn test_load_entities_from_authz_call() {   
+async fn test_load_entities_from_authz_call() {
 
     let entities: String = r#"
     [
@@ -89,13 +89,13 @@ async fn test_load_entities_from_authz_call() {
     "#
     .to_string();
 
-    let query = make_authz_call(entities);    
+    let query = make_authz_call(entities);
 
     match query {
-        Ok(req) => {                        
-            assert_ne!(req.get_entities(), None);            
+        Ok(req) => {
+            assert_ne!(req.get_entities(), None);
         },
-        _ => assert!(false)        
+        _ => assert!(false)
     };
 }
 
@@ -108,6 +108,7 @@ fn make_authz_call_no_entities() -> Result<AuthorizationRequest, Box<dyn Error>>
         principal,
         action,
         resource,
+        None,
         None,
         None,
         None,
@@ -126,6 +127,7 @@ fn make_authz_call(entities: String) -> Result<AuthorizationRequest, Box<dyn Err
         resource,
         None,
         rocket::serde::json::from_str(&entities).unwrap(),
+        None,
         None,
     );
     return authorization_call.try_into();
