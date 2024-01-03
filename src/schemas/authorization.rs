@@ -6,6 +6,7 @@ use std::str::FromStr;
 use cedar_policy::{Context, EntityUid, EvaluationError, Request, Response, Entities};
 use cedar_policy_core::authorizer::Decision;
 use cedar_policy_core::parser::err::ParseErrors;
+use cedar_policy_core::entities::EntitiesError;
 
 use rocket::serde::json::serde_json;
 use rocket_okapi::okapi::schemars;
@@ -52,8 +53,21 @@ impl AuthorizationRequest {
         self.entities
     }
 
-    pub fn get_request_entities(self) -> (Request, Option<Entities>, Option<Entities>) {
-        (self.request, self.entities, self.additional_entities)
+    pub fn get_request_entities(self, stored_entities: Entities) -> Result<(Request, Entities), EntitiesError> {
+        let request_entities = match self.entities {
+            None => stored_entities,
+            Some(ents) => ents.clone()
+        };
+        let patched_entities = match self.additional_entities {
+            None => request_entities,
+            Some(ents) => {
+                match Entities::from_entities(request_entities.iter().chain(ents.iter()).cloned()) {
+                    Ok(entities) => entities,
+                    Err(err) => return Err(err)
+                }
+            }
+        };
+        Ok((self.request, patched_entities))
     }
 }
 

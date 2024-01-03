@@ -99,6 +99,97 @@ async fn test_load_entities_from_authz_call() {
     };
 }
 
+#[tokio::test]
+async fn test_combine_entities_with_additional_entities(){
+    let stored_entities: String = r#"
+    [
+        {
+            "attrs": {},
+            "parents": [
+                {
+                    "id": "Admin",
+                    "type": "Role"
+                }
+            ],
+            "uid": {
+                "id": "admin.1@domain.com",
+                "type": "User"
+            }
+        },
+        {
+            "attrs": {},
+            "parents": [],
+            "uid": {
+                "id": "delete",
+                "type": "Action"
+            }
+        }
+    ]
+    "#
+    .to_string();
+
+    let additional_entities: String = r#"
+    [
+        {
+            "attrs": {},
+            "parents": [],
+            "uid": {
+                "id": "Admin",
+                "type": "Role"
+            }
+        }
+    ]
+    "#.to_string();
+
+    let expected_result: String = r#"
+    [
+        {
+            "attrs": {},
+            "parents": [
+                {
+                    "id": "Admin",
+                    "type": "Role"
+                }
+            ],
+            "uid": {
+                "id": "admin.1@domain.com",
+                "type": "User"
+            }
+        },
+        {
+            "attrs": {},
+            "parents": [],
+            "uid": {
+                "id": "delete",
+                "type": "Action"
+            }
+        },
+        {
+            "attrs": {},
+            "parents": [],
+            "uid": {
+                "id": "Admin",
+                "type": "Role"
+            }
+        }
+    ]
+    "#.to_string();
+
+    let query = make_authz_call_with_additional_entities(additional_entities);
+
+    match query {
+        Ok(req) => {
+            match req.get_request_entities(Entities::from_json_str(&stored_entities, None).unwrap()) {
+                Ok((_request, entities)) => {
+                    assert_eq!(entities, Entities::from_json_str(&expected_result, None).unwrap())
+                },
+                _ => assert!(false)
+            };
+        },
+        _ => assert!(false)
+    };
+}
+
 fn make_authz_call_no_entities() -> Result<AuthorizationRequest, Box<dyn Error>> {
     let principal: Option<String> = Some("User::\"Test\"".to_string());
     let action: Option<String> = Some("Action::\"Delete\"".to_string());
@@ -131,5 +222,23 @@ fn make_authz_call(entities: String) -> Result<AuthorizationRequest, Box<dyn Err
         None,
     );
     return authorization_call.try_into();
+}
 
+fn make_authz_call_with_additional_entities(
+    additional_entities: String
+) -> Result<AuthorizationRequest, Box<dyn Error>> {
+    let principal: Option<String> = Some("User::\"Test\"".to_string());
+    let action: Option<String> = Some("Action::\"Delete\"".to_string());
+    let resource: Option<String> = Some("Document::\"cedar-agent.pdf\"".to_string());
+
+    let authorization_call = AuthorizationCall::new(
+        principal,
+        action,
+        resource,
+        None,
+        None,
+        rocket::serde::json::from_str(&additional_entities).unwrap(),
+        None,
+    );
+    return authorization_call.try_into();
 }

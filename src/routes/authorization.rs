@@ -1,4 +1,4 @@
-use cedar_policy::{Authorizer, Entities};
+use cedar_policy::Authorizer;
 
 use log::info;
 
@@ -32,27 +32,17 @@ pub async fn is_authorized(
 
     // Temporary solution to override fetching entities from the datastore by directly passing it to the REST body.
     // Eventually this logic will be replaced in favor of performing live patch updates
-    let (request, entities, additional_entities) = &query.get_request_entities();
-
-    let request_entities = match entities {
-        None => data_store.entities().await,
-        Some(ents) => ents.clone()
-    };
-    let patched_entities = match additional_entities {
-        None => request_entities,
-        Some(ents) => {
-            match Entities::from_entities(request_entities.iter().chain(ents.iter()).cloned()) {
-                Ok(entities) => entities,
-                Err(err) => {
-                    return Err(AgentError::BadRequest {
-                        reason: err.to_string(),
-                    })
-                }
-            }
+    let stored_entities = data_store.entities().await;
+    let (request, entities) = match query.get_request_entities(stored_entities) {
+        Ok(result) => result,
+        Err(err)=> {
+            return Err(AgentError::BadRequest {
+                reason: err.to_string(),
+            })
         }
     };
 
     info!("Querying cedar using {:?}", &request);
-    let answer = authorizer.is_authorized(&request, &policies, &patched_entities);
+    let answer = authorizer.is_authorized(&request, &policies, &entities);
     Ok(Json::from(AuthorizationAnswer::from(answer)))
 }
