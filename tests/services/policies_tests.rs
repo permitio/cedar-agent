@@ -15,19 +15,19 @@ async fn memory_tests() {
     let store = MemoryPolicyStore::new();
 
     let policies = store
-        .update_policies(vec![approve_all_policy(None)])
+        .update_policies(vec![approve_all_policy(None)], None)
         .await
         .unwrap();
     assert_eq!(policies.len(), 1);
     let duplicate_policies = store
-        .update_policies(vec![approve_all_policy(None), approve_all_policy(None)])
+        .update_policies(vec![approve_all_policy(None), approve_all_policy(None)], None)
         .await;
     assert!(duplicate_policies.is_err());
-    let error_policies = store.update_policies(vec![parse_error_policy()]).await;
+    let error_policies = store.update_policies(vec![parse_error_policy()], None).await;
     assert!(error_policies.is_err());
 
     let created_policy = store
-        .create_policy(&approve_admin_policy(Some("admin".to_string())))
+        .create_policy(&approve_admin_policy(Some("admin".to_string())), None)
         .await
         .unwrap();
     assert_eq!(created_policy.id, "admin".to_string());
@@ -36,10 +36,10 @@ async fn memory_tests() {
     assert_eq!(policy.content, created_policy.content);
 
     let error_policy = store
-        .create_policy(&approve_admin_policy(Some("admin".to_string())))
+        .create_policy(&approve_admin_policy(Some("admin".to_string())), None)
         .await;
     assert!(error_policy.is_err());
-    let error_policy = store.create_policy(&parse_error_policy()).await;
+    let error_policy = store.create_policy(&parse_error_policy(), None).await;
     assert!(error_policy.is_err());
 
     let policies = store.get_policies().await;
@@ -51,6 +51,7 @@ async fn memory_tests() {
             PolicyUpdate {
                 content: approve_admin_policy(None).content,
             },
+            None
         )
         .await
         .unwrap();
@@ -66,6 +67,7 @@ async fn memory_tests() {
             PolicyUpdate {
                 content: parse_error_policy().content,
             },
+            None
         )
         .await;
     assert!(error_policy.is_err());

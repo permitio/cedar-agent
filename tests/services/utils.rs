@@ -2,6 +2,7 @@ use rocket::serde::json::serde_json::from_str;
 
 use cedar_agent::schemas::data::Entities;
 use cedar_agent::schemas::policies::Policy;
+use cedar_agent::schemas::schema::Schema;
 
 pub(crate) fn split_content(in_string: &str) -> (&str, &str) {
     let mut splitter = in_string.splitn(2, ':');
@@ -18,24 +19,34 @@ pub(crate) fn parse_error_policy() -> Policy {
 }
 
 pub(crate) fn approve_all_policy(id: Option<String>) -> Policy {
-    let id = match id {
-        Some(id) => id,
-        None => "test".to_string(),
-    };
+    let id = id.unwrap_or_else(|| "test".to_string());
     Policy {
-        id: id,
+        id,
         content: "permit(principal,action,resource);".to_string(),
     }
 }
 
 pub(crate) fn approve_admin_policy(id: Option<String>) -> Policy {
-    let id = match id {
-        Some(id) => id,
-        None => "test".to_string(),
-    };
+    let id = id.unwrap_or_else(|| "test".to_string());
     Policy {
-        id: id,
+        id,
         content: "permit(principal == User::\"admin@domain.com\",action,resource);".to_string(),
+    }
+}
+
+pub(crate) fn schema_valid_policy(id: Option<String>) -> Policy {
+    let id = id.unwrap_or_else(|| "test".to_string());
+    Policy {
+        id,
+        content: "permit(principal in Role::\"Editor\",action,resource == ResourceType::\"document\");".to_string(),
+    }
+}
+
+pub(crate) fn schema_invalid_policy(id: Option<String>) -> Policy {
+    let id = id.unwrap_or_else(|| "test".to_string());
+    Policy {
+        id,
+        content: "permit(principal in Role::\"Editor\",action,resource == Document::\"document\");".to_string(),
     }
 }
 
@@ -155,4 +166,74 @@ pub(crate) fn parse_error_entities() -> Entities {
     ]
     "#;
     from_str(entities_json).unwrap()
+}
+
+pub(crate) fn schema() -> Schema {
+    let schema_json = r#"
+    {
+      "": {
+        "entityTypes": {
+          "User": {
+            "shape": {
+              "type": "Record",
+              "attributes": {
+                "confidenceScore": {
+                  "type": "Extension",
+                  "name": "decimal"
+                },
+                "department": {
+                  "type": "String"
+                },
+                "homeIp": {
+                  "type": "Extension",
+                  "name": "ipaddr"
+                },
+                "jobLevel": {
+                  "type": "Long"
+                }
+              }
+            },
+            "memberOfTypes": [
+              "Role"
+            ]
+          },
+          "Role": {
+            "shape": {
+              "type": "Record",
+              "attributes": {}
+            }
+          },
+          "ResourceType": {
+            "shape": {
+              "type": "Record",
+              "attributes": {}
+            }
+          }
+        },
+        "actions": {
+          "create": {
+            "appliesTo": {
+              "principalTypes": [
+                "User",
+                "Role"
+              ],
+              "resourceTypes": [
+                "ResourceType"
+              ]
+            }
+          }
+        }
+      }
+    }
+    "#;
+    from_str(schema_json).unwrap()
+}
+
+pub(crate) fn parse_error_schema() -> Schema {
+    let schema_json = r#"
+    {
+      "namespace": "error"
+    }
+    "#;
+    from_str(schema_json).unwrap()
 }

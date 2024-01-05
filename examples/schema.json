@@ -1,0 +1,84 @@
+{
+  "": {
+    "entityTypes": {
+      "User": {
+        "shape": {
+          "type": "Record",
+          "attributes": {}
+        },
+        "memberOfTypes": [
+          "Role"
+        ]
+      },
+      "Role": {
+        "shape": {
+          "type": "Record",
+          "attributes": {}
+        }
+      },
+      "Document": {
+        "shape": {
+          "type": "Record",
+          "attributes": {}
+        }
+      }
+    },
+    "actions": {
+      "create": {
+        "appliesTo": {
+          "principalTypes": [
+            "User",
+            "Role"
+          ],
+          "resourceTypes": [
+            "Document"
+          ]
+        }
+      },
+      "delete": {
+        "appliesTo": {
+          "principalTypes": [
+            "User",
+            "Role"
+          ],
+          "resourceTypes": [
+            "Document"
+          ]
+        }
+      },
+      "get": {
+        "appliesTo": {
+          "principalTypes": [
+            "User",
+            "Role"
+          ],
+          "resourceTypes": [
+            "Document"
+          ]
+        }
+      },
+      "list": {
+        "appliesTo": {
+          "principalTypes": [
+            "User",
+            "Role"
+          ],
+          "resourceTypes": [
+            "Document"
+          ]
+        }
+      },
+      "update": {
+        "appliesTo": {
+          "principalTypes": [
+            "User",
+            "Role"
+          ],
+          "resourceTypes": [
+            "Document"
+          ]
+        }
+      }
+    }
+  }
+}
