@@ -12,7 +12,7 @@ use crate::services::utils;
 async fn memory_tests() {
     let store = MemorySchemaStore::new();
 
-    let schema = store.get_schema().await;
+    let schema = store.get_internal_schema().await;
     assert!(schema.is_empty());
     let updated_schema = store.update_schema(utils::schema()).await;
     assert!(!updated_schema.is_err());
@@ -21,7 +21,7 @@ async fn memory_tests() {
     let error_schema = store.update_schema(utils::parse_error_schema()).await;
     assert!(error_schema.is_err());
     store.delete_schema().await;
-    let entities = store.get_schema().await;
+    let entities = store.get_internal_schema().await;
     assert!(schema.is_empty());
 }
 
@@ -37,12 +37,12 @@ async fn test_load_schema_from_file() {
 async fn test_validate_policy() {
     let policy_store = MemoryPolicyStore::new();
     let schema_store = MemorySchemaStore::new();
-    let _ = schema_store.update_schema(utils::schema()).await.unwrap();
+    schema_store.update_schema(utils::schema()).await.unwrap();
 
     let valid_policies = policy_store
         .update_policies(
             vec![utils::schema_valid_policy(Some("valid".to_string()))],
-            Some(schema_store.schema().await)
+            schema_store.get_cedar_schema().await
         ).await;
     assert!(!valid_policies.is_err());
 
@@ -53,7 +53,7 @@ async fn test_validate_policy() {
     let invalid_policies = policy_store
         .update_policies(
             vec![utils::schema_invalid_policy(Some("invalid".to_string()))],
-            Some(schema_store.schema().await)
+            schema_store.get_cedar_schema().await
         ).await;
     assert!(invalid_policies.is_err());
 }

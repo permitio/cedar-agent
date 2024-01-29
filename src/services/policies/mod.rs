@@ -19,7 +19,7 @@ pub trait PolicyStore: Send + Sync {
         &self,
         policy: &Policy,
         schema: Option<Schema>
-    ) -> Result<Policy, PolicyStoreError>;
+    ) -> Result<Policy, Box<dyn Error>>;
     async fn update_policies(
         &self,
         policies: Vec<Policy>,

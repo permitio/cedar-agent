@@ -46,22 +46,23 @@ pub async fn create_policy(
     schema_store: &State<Box<dyn SchemaStore>>,
 ) -> Result<Json<schemas::Policy>, AgentError> {
     let policy = policy.into_inner();
-    let schema =
-        if schema_store.schema_empty().await
-            { None }
-        else
-            { Some(schema_store.schema().await) };
+    let schema = schema_store.get_cedar_schema().await;
 
     let added_policy = policy_store.create_policy(policy.borrow(), schema).await;
     match added_policy {
         Ok(p) => Ok(Json::from(p)),
-        Err(PolicyStoreError::PolicyInvalid(_, reason)) => Err(AgentError::BadRequest {
-            reason
-        }),
-        Err(_) => Err(AgentError::Duplicate {
-            id: policy.id,
-            object: "policy",
-        }),
+        Err(e) => {
+            if let Some(PolicyStoreError::PolicyInvalid(_, reason)) = e.downcast_ref::<PolicyStoreError>() {
+                Err(AgentError::BadRequest {
+                    reason: reason.clone()
+                })
+            } else {
+                Err(AgentError::Duplicate {
+                    id: policy.id,
+                    object: "policy",
+                })
+            }
+        },
     }
 }
 
@@ -73,11 +74,7 @@ pub async fn update_policies(
     policy_store: &State<Box<dyn PolicyStore>>,
     schema_store: &State<Box<dyn SchemaStore>>,
 ) -> Result<Json<Vec<schemas::Policy>>, AgentError> {
-    let schema =
-        if schema_store.schema_empty().await
-        { None }
-        else
-        { Some(schema_store.schema().await) };
+    let schema = schema_store.get_cedar_schema().await;
 
     let updated_policy = policy_store.update_policies(
         policy.into_inner(),
@@ -100,11 +97,7 @@ pub async fn update_policy(
     policy_store: &State<Box<dyn PolicyStore>>,
     schema_store: &State<Box<dyn SchemaStore>>,
 ) -> Result<Json<schemas::Policy>, AgentError> {
-    let schema =
-        if schema_store.schema_empty().await
-        { None }
-        else
-        { Some(schema_store.schema().await) };
+    let schema = schema_store.get_cedar_schema().await;
 
     let updated_policy = policy_store.update_policy(
         id,

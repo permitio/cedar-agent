@@ -54,16 +54,13 @@ pub async fn load_schema_from_file(path: PathBuf) -> Result<Schema, Box<dyn Erro
     };
 
     let mut contents = String::new();
-    if let Err(err) = file.read_to_string(&mut contents) {
-        return Err(format!("Failed to read file {}", err).into());
+    match file.read_to_string(&mut contents) {
+        Ok(_) => match rocket::serde::json::from_str(&contents) {
+                Ok(schema) => Ok(schema),
+                Err(err) => Err(format!("Failed to deserialize JSON: {}", err).into()),
+            }
+        Err(err) => Err(format!("Failed to read file {}", err).into())
     }
-
-    let schema: Schema = match rocket::serde::json::from_str(&contents) {
-        Ok(schema) => schema,
-        Err(err) => return Err(format!("Failed to deserialize JSON: {}", err).into()),
-    };
-
-    Ok(schema)
 }
 
 #[async_trait]

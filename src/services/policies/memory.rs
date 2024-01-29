@@ -39,27 +39,33 @@ impl Policies {
         self.1 = policy_set;
     }
 
-    fn validate_policy(policy: &cedar_policy::Policy, schema: &Schema) -> (bool, String) {
-        // Copy the policy into its own set to pass to a validator.
-        let mut validation_set = PolicySet::new();
-        validation_set.add(policy.clone()).unwrap();
-        let validator = Validator::new(schema.clone());
-        let validation_result = Validator::validate(
-            &validator,
-            &validation_set,
-            ValidationMode::default()
-        );
+    fn validate_policy(policy: &cedar_policy::Policy, schema: &Option<Schema>) -> Result<(), PolicyStoreError> {
+        match schema {
+            Some(schema) => {
+                // Copy the policy into its own set to pass to a validator.
+                let mut validation_set = PolicySet::new();
+                validation_set.add(policy.clone()).unwrap();
+                let validator = Validator::new(schema.clone());
+                let validation_result = Validator::validate(
+                    &validator,
+                    &validation_set,
+                    ValidationMode::default()
+                );
 
-        if ValidationResult::validation_passed(&validation_result) {
-            (true, String::new())
-        } else {
-            let errs = ValidationResult::validation_errors(&validation_result);
-            let mut error_msg = String::from("");
-            for e in errs {
-                error_msg += &*format!("{}; ", e);
-            }
-            (false, error_msg)
+                if ValidationResult::validation_passed(&validation_result) {
+                    Ok(())
+                } else {
+                    let errs = ValidationResult::validation_errors(&validation_result);
+                    let mut error_msg = String::from("");
+                    for e in errs {
+                        error_msg += &*format!("{}; ", e);
+                    }
+                    Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), error_msg).into())
+                }
+            },
+            None => Ok(())
         }
+
     }
 }
 
@@ -112,24 +118,18 @@ impl PolicyStore for MemoryPolicyStore {
         &self,
         policy: &Policy,
         schema: Option<Schema>
-    ) -> Result<Policy, PolicyStoreError> {
+    ) -> Result<Policy, Box<dyn Error>> {
         info!("Creating policy {}", policy.id);
         let mut lock = self.write().await;
         let stored_policy = lock.0.get(&policy.id);
         match stored_policy {
-            Some(_) => Err(PolicyStoreError::PolicySetError(PolicySetError::AlreadyDefined)),
+            Some(_) => Err(PolicySetError::AlreadyDefined.into()),
             None => {
                 let policy: cedar_policy::Policy = match policy.borrow().try_into() {
                     Ok(p) => p,
-                    Err(err) => return Err(PolicyStoreError::PolicyParseError(err)),
+                    Err(err) => return Err(PolicyStoreError::PolicyParseError(err).into()),
                 };
-
-                if let Some(schema) = schema {
-                    let (result, msg) = Policies::validate_policy(&policy, &schema);
-                    if !result {
-                        return Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), msg));
-                    }
-                }
+                Policies::validate_policy(&policy, &schema)?;
 
                 let policy_id = policy.id().to_string();
                 lock.0.insert(policy_id.clone(), policy);
@@ -157,13 +157,7 @@ impl PolicyStore for MemoryPolicyStore {
                         Ok(p) => p,
                         Err(err) => return Err(err.into()),
                     };
-
-                    if let Some(schema) = schema.clone() {
-                        let (result, msg) = Policies::validate_policy(&policy, &schema);
-                        if !result {
-                            return Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), msg).into());
-                        }
-                    }
+                    Policies::validate_policy(&policy, &schema)?;
 
                     new_policies.insert(policy.id().to_string(), policy)
                 }
@@ -189,13 +183,7 @@ impl PolicyStore for MemoryPolicyStore {
             Ok(p) => p,
             Err(err) => return Err(err.into()),
         };
-
-        if let Some(schema) = schema {
-            let (result, msg) = Policies::validate_policy(&policy, &schema);
-            if !result {
-                return Err(PolicyStoreError::PolicyInvalid(policy.id().to_string(), msg).into());
-            }
-        }
+        Policies::validate_policy(&policy, &schema)?;
 
         *lock
             .0

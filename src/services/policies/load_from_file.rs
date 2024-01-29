@@ -35,12 +35,7 @@ pub(crate) async fn init(
         }
     };
 
-    let schema =
-        if schema_store.schema_empty().await
-        { None }
-        else
-        { Some(schema_store.schema().await) };
-
+    let schema = schema_store.get_cedar_schema().await;
     match policy_store.update_policies(policies.into_inner(), schema).await {
         Ok(policies) => {
             info!("Successfully updated policies from file {}: {} policies", &file_path.display(), policies.len());

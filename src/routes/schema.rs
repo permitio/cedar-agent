@@ -14,7 +14,7 @@ pub async fn get_schema(
     _auth: ApiKey,
     schema_store: &State<Box<dyn SchemaStore>>
 ) -> Result<Json<Schema>, AgentError> {
-    Ok(Json::from(schema_store.get_schema().await))
+    Ok(Json::from(schema_store.get_internal_schema().await))
 }
 
 #[openapi]
