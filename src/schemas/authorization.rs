@@ -61,7 +61,10 @@ impl AuthorizationRequest {
         let patched_entities = match self.additional_entities {
             None => request_entities,
             Some(ents) => {
-                match Entities::from_entities(request_entities.iter().chain(ents.iter()).cloned()) {
+                match Entities::from_entities(
+                    request_entities.iter().chain(ents.iter()).cloned(),
+                    Option::None,
+                ) {
                     Ok(entities) => entities,
                     Err(err) => return Err(err)
                 }
@@ -142,8 +145,9 @@ impl TryInto<AuthorizationRequest> for AuthorizationCall {
             },
             None => Context::empty(),
         };
+        let req = Request::new(principal, action, resource, context, Option::None);
         Ok(AuthorizationRequest::new(
-            Request::new(principal, action, resource, context),
+            Option::unwrap(req.ok()),
             entities,
             additional_entities,
         ))
@@ -188,7 +192,8 @@ impl Into<Response> for AuthorizationAnswer {
                     .iter()
                     .map(|r| cedar_policy::PolicyId::from_str(r).unwrap()),
             ),
-            self.diagnostics.errors,
+            Vec::new(),
+            // self.diagnostics.errors,
         )
     }
 }
@@ -202,9 +207,10 @@ impl From<Response> for AuthorizationAnswer {
             },
             diagnostics: DiagnosticsRef {
                 reason: HashSet::from_iter(value.diagnostics().reason().map(|r| r.to_string())),
-                errors: HashSet::from_iter(value.diagnostics().errors().map(|e| match e {
-                    EvaluationError::StringMessage(e) => e,
-                })),
+                errors: HashSet::new(),
+                // errors: HashSet::from_iter(value.diagnostics().errors().map(|e| match e {
+                //     EvaluationError::StringMessage(e) => e,
+                // })),
             },
         }
     }

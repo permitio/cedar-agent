@@ -258,30 +258,31 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy"
-version = "2.4.2"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d91e3b10a0f7f2911774d5e49713c4d25753466f9e11d1cd2ec627f8a2dc857"
+checksum = "e497043f26d1ae7326a27dfbfa7a1169ae96311219663d8d8d8da5053a66c9a3"
 dependencies = [
  "cedar-policy-core",
  "cedar-policy-validator",
- "itertools",
+ "itertools 0.12.1",
  "lalrpop-util",
+ "miette",
  "ref-cast",
  "serde",
  "serde_json",
+ "serde_with",
  "smol_str",
  "thiserror",
 ]
 
 [[package]]
 name = "cedar-policy-core"
-version = "2.4.2"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd2315591c6b7e18f8038f0a0529f254235fd902b6c217aabc04f2459b0d9995"
+checksum = "c91c5016e8cadabfbd1ece964cc279b6b9864766fb2d03a5f746171a3cc4a497"
 dependencies = [
  "either",
- "ipnet",
- "itertools",
+ "itertools 0.12.1",
  "lalrpop",
  "lalrpop-util",
  "lazy_static",
@@ -298,12 +299,12 @@ dependencies = [
 
 [[package]]
 name = "cedar-policy-validator"
-version = "2.4.2"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e756e1b2a5da742ed97e65199ad6d0893e9aa4bd6b34be1de9e70bd1e6adc7df"
+checksum = "9edea433dce426b8049403cb62b7f8914f476aabfcfea45e42ebd31201b3aa1e"
 dependencies = [
  "cedar-policy-core",
- "itertools",
+ "itertools 0.12.1",
  "serde",
  "serde_json",
  "serde_with",
@@ -931,6 +932,7 @@ checksum = "d5477fe2230a79769d8dc68e0eabf5437907c0457a5614a9e8dddb67f65eb65d"
 dependencies = [
  "equivalent",
  "hashbrown 0.14.0",
+ "serde",
 ]
 
 [[package]]
@@ -960,12 +962,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ipnet"
-version = "2.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28b29a3cd74f0f4598934efe3aeba42bae0eb4680554128851ebbecb02af14e6"
-
-[[package]]
 name = "is-terminal"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -982,6 +978,15 @@ name = "itertools"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
 dependencies = [
  "either",
 ]
@@ -1012,7 +1017,7 @@ dependencies = [
  "diff",
  "ena",
  "is-terminal",
- "itertools",
+ "itertools 0.10.5",
  "lalrpop-util",
  "petgraph",
  "pico-args",
@@ -1789,15 +1794,17 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "3.0.0"
+version = "3.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f02d8aa6e3c385bf084924f660ce2a3a6bd333ba55b35e8590b321f35d88513"
+checksum = "15d167997bd841ec232f5b2b8e0e26606df2e7caa4c31b95ea9ca52b200bd270"
 dependencies = [
  "base64",
  "chrono",
  "hex",
  "indexmap 1.9.3",
+ "indexmap 2.0.0",
  "serde",
+ "serde_derive",
  "serde_json",
  "serde_with_macros",
  "time 0.3.22",
@@ -1805,9 +1812,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with_macros"
-version = "3.0.0"
+version = "3.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edc7d5d3932fb12ce722ee5e64dd38c504efba37567f0c402f6ca728c3b8b070"
+checksum = "865f9743393e638991566a8b7a479043c2c8da94a33e0a31f18214c9cae0a64d"
 dependencies = [
  "darling 0.20.1",
  "proc-macro2",
