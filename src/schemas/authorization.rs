@@ -1,9 +1,9 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Debug};
 use std::error::Error;
 use std::str::FromStr;
 
 
-use cedar_policy::{Context, EntityUid, EvaluationError, Request, Response, Entities};
+use cedar_policy::{Context, EntityUid, Request, Response, Entities};
 use cedar_policy_core::authorizer::Decision;
 use cedar_policy_core::parser::err::ParseErrors;
 use cedar_policy_core::entities::EntitiesError;
@@ -145,9 +145,8 @@ impl TryInto<AuthorizationRequest> for AuthorizationCall {
             },
             None => Context::empty(),
         };
-        let req = Request::new(principal, action, resource, context, Option::None);
         Ok(AuthorizationRequest::new(
-            Option::unwrap(req.ok()),
+            Request::new(principal, action, resource, context, Option::None).unwrap(),
             entities,
             additional_entities,
         ))
@@ -165,12 +164,24 @@ pub enum DecisionRef {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct ErrorRef2 {
+    error_kind: String,
+    advice: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct ErrorRef {
+    policy: String,
+    error: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct DiagnosticsRef {
     /// `PolicyId`s of the policies that contributed to the decision.
     /// If no policies applied to the query, this set will be empty.
     reason: HashSet<String>,
     /// list of error messages which occurred
-    errors: HashSet<String>,
+    errors: Vec<ErrorRef>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -193,7 +204,6 @@ impl Into<Response> for AuthorizationAnswer {
                     .map(|r| cedar_policy::PolicyId::from_str(r).unwrap()),
             ),
             Vec::new(),
-            // self.diagnostics.errors,
         )
     }
 }
@@ -207,10 +217,14 @@ impl From<Response> for AuthorizationAnswer {
             },
             diagnostics: DiagnosticsRef {
                 reason: HashSet::from_iter(value.diagnostics().reason().map(|r| r.to_string())),
-                errors: HashSet::new(),
-                // errors: HashSet::from_iter(value.diagnostics().errors().map(|e| match e {
-                //     EvaluationError::StringMessage(e) => e,
-                // })),
+                errors: Vec::from_iter(value.diagnostics().errors().map(|e| match e {
+                    cedar_policy::AuthorizationError::PolicyEvaluationError { id, error } => {
+                        ErrorRef {
+                            policy: id.to_string(),
+                            error: error.to_string(),
+                        }
+                    }
+                })),
             },
         }
     }
