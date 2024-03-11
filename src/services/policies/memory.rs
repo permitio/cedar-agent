@@ -125,7 +125,7 @@ impl PolicyStore for MemoryPolicyStore {
         match stored_policy {
             Some(_) => Err(PolicySetError::AlreadyDefined.into()),
             None => {
-                let policy: cedar_policy::Policy = match policy.borrow().try_into() {
+                let policy: cedar_policy::Policy = match policy.try_into() {
                     Ok(p) => p,
                     Err(err) => return Err(PolicyStoreError::PolicyParseError(err).into()),
                 };

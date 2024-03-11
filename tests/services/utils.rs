@@ -170,7 +170,7 @@ pub(crate) fn parse_error_entities() -> Entities {
 
 pub(crate) fn schema() -> Schema {
     let schema_json = r#"
-    {
+{
       "": {
         "entityTypes": {
           "User": {
@@ -211,7 +211,66 @@ pub(crate) fn schema() -> Schema {
           }
         },
         "actions": {
-          "create": {
+          "document:get": {
+            "appliesTo": {
+              "principalTypes": [
+                "User",
+                "Role"
+              ],
+              "resourceTypes": [
+                "ResourceType"
+              ]
+            }
+          },
+          "document:create": {
+            "memberOf": [
+              {
+                "id": "document:update"
+              }
+            ],
+            "appliesTo": {
+              "principalTypes": [
+                "User",
+                "Role"
+              ],
+              "resourceTypes": [
+                "ResourceType"
+              ]
+            }
+          },
+          "document:delete": {
+            "appliesTo": {
+              "principalTypes": [
+                "User",
+                "Role"
+              ],
+              "resourceTypes": [
+                "ResourceType"
+              ]
+            }
+          },
+          "document:update": {
+            "memberOf": [
+              {
+                "id": "document:delete"
+              }
+            ],
+            "appliesTo": {
+              "principalTypes": [
+                "User",
+                "Role"
+              ],
+              "resourceTypes": [
+                "ResourceType"
+              ]
+            }
+          },
+          "document:list": {
+            "memberOf": [
+              {
+                "id": "document:get"
+              }
+            ],
             "appliesTo": {
               "principalTypes": [
                 "User",

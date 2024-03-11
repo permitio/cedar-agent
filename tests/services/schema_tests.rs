@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use cedar_agent::schema::load_from_file::load_schema_from_file;
 use cedar_agent::schema::memory::MemorySchemaStore;
 use cedar_agent::policies::memory::MemoryPolicyStore;
-use cedar_agent::SchemaStore;
-use cedar_agent::PolicyStore;
+use cedar_agent::data::memory::MemoryDataStore;
+use cedar_agent::{SchemaStore, PolicyStore, DataStore};
 
 use crate::services::utils;
 
@@ -21,7 +21,7 @@ async fn memory_tests() {
     let error_schema = store.update_schema(utils::parse_error_schema()).await;
     assert!(error_schema.is_err());
     store.delete_schema().await;
-    let entities = store.get_internal_schema().await;
+    let schema = store.get_internal_schema().await;
     assert!(schema.is_empty());
 }
 
@@ -56,4 +56,26 @@ async fn test_validate_policy() {
             schema_store.get_cedar_schema().await
         ).await;
     assert!(invalid_policies.is_err());
+}
+
+#[tokio::test]
+async fn test_validate_entities() {
+    let data_store = MemoryDataStore::new();
+    let schema_store = MemorySchemaStore::new();
+    schema_store.update_schema(utils::schema()).await.unwrap();
+
+    let valid_entities = data_store
+        .update_entities(
+            utils::entities(),
+            schema_store.get_cedar_schema().await
+        ).await;
+    assert!(!valid_entities.is_err());
+    assert_eq!(valid_entities.unwrap().len(), 8);
+
+    let invalid_entities = data_store
+        .update_entities(
+            utils::parse_error_entities(),
+            schema_store.get_cedar_schema().await
+        ).await;
+    assert!(invalid_entities.is_err());
 }

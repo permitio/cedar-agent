@@ -4,7 +4,6 @@ use async_trait::async_trait;
 use cedar_policy::{PolicySet, Schema};
 
 use crate::schemas::policies::{Policy, PolicyUpdate};
-use crate::services::policies::errors::PolicyStoreError;
 
 pub(crate) mod errors;
 pub mod memory;
