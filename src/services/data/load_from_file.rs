@@ -9,12 +9,17 @@ use rocket::Rocket;
 use rocket::Build;
 
 use crate::services::data::DataStore;
+use crate::services::schema::SchemaStore;
 use crate::config;
 use crate::schemas::data::Entities;
 
 pub struct InitDataFairing;
 
-pub(crate) async fn init(conf: &config::Config, data_store: &Box<dyn DataStore>) {
+pub(crate) async fn init(
+    conf: &config::Config,
+    data_store: &Box<dyn DataStore>,
+    schema_store: &Box<dyn SchemaStore>
+) {
 
     if conf.data.is_none() {
         return;
@@ -30,7 +35,8 @@ pub(crate) async fn init(conf: &config::Config, data_store: &Box<dyn DataStore>)
         }
     };
 
-    match data_store.update_entities(entities).await {
+    let schema = schema_store.get_cedar_schema().await;
+    match data_store.update_entities(entities, schema).await {
         Ok(entities) => {
             info!("Successfully updated entities from file {}: {} entities", &file_path.display(), entities.len());
         }
@@ -71,6 +77,13 @@ pub async fn load_entities_from_file(path: PathBuf) -> Result<Entities, Box<dyn 
 
 #[async_trait::async_trait]
 impl Fairing for InitDataFairing {
+    fn info(&self) -> Info {
+        Info {
+            name: "Init Data",
+            kind: Kind::Ignite
+        }
+    }
+
     async fn on_ignite(&self, rocket: Rocket<Build>) -> Result<Rocket<Build>, Rocket<Build>> {
         let config = rocket.state::<config::Config>();
 
@@ -78,15 +91,12 @@ impl Fairing for InitDataFairing {
             return Ok(rocket);
         }
 
-        init(config.unwrap(), rocket.state::<Box<dyn DataStore>>().unwrap()).await;
+        init(
+            config.unwrap(),
+            rocket.state::<Box<dyn DataStore>>().unwrap(),
+            rocket.state::<Box<dyn SchemaStore>>().unwrap()
+        ).await;
 
         Ok(rocket)
-    }
-
-    fn info(&self) -> Info {
-        Info {
-            name: "Init Data",
-            kind: Kind::Ignite
-        }
     }
 }

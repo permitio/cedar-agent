@@ -7,7 +7,7 @@ use rocket_okapi::openapi;
 use crate::authn::ApiKey;
 use crate::errors::response::AgentError;
 use crate::schemas::data as schemas;
-use crate::DataStore;
+use crate::{DataStore, SchemaStore};
 
 #[openapi]
 #[get("/data")]
@@ -23,9 +23,12 @@ pub async fn get_entities(
 pub async fn update_entities(
     _auth: ApiKey,
     data_store: &State<Box<dyn DataStore>>,
+    schema_store: &State<Box<dyn SchemaStore>>,
     entities: Json<schemas::Entities>,
 ) -> Result<Json<schemas::Entities>, AgentError> {
-    match data_store.update_entities(entities.into_inner()).await {
+    let schema = schema_store.get_cedar_schema().await;
+
+    match data_store.update_entities(entities.into_inner(), schema).await {
         Ok(entities) => Ok(Json::from(entities)),
         Err(err) => Err(AgentError::BadRequest {
             reason: err.to_string(),

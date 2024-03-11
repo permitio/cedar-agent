@@ -5,6 +5,7 @@ use cedar_policy_core::entities::{
 };
 use cedar_policy_core::extensions::Extensions;
 use cedar_policy_core::{ast, entities};
+use cedar_policy::Schema;
 use log::debug;
 use rocket::serde::json::serde_json::{from_str, json, to_string};
 use rocket::serde::json::Value;
@@ -51,6 +52,13 @@ impl Entities {
     pub fn len(&self) -> usize {
         self.0.len()
     }
+
+    // Custom conversion function in place of a TryInto implementation
+    // This is due to the extra optional argument (schema)
+    pub fn convert_to_cedar_entities(&self, schema: &Option<Schema>) -> Result<cedar_policy::Entities, EntitiesError> {
+        debug!("Parsing entities into cedar format");
+        cedar_policy::Entities::from_json_value(json!(self.0), schema.as_ref())
+    }
 }
 
 impl From<entities::Entities> for Entities {
@@ -67,14 +75,5 @@ impl TryInto<entities::Entities> for Entities {
         let parser: EntityJsonParser<NoEntitiesSchema> =
             EntityJsonParser::new(None, Extensions::all_available(), TCComputation::ComputeNow);
         parser.from_json_value(json!(self.0))
-    }
-}
-
-impl TryInto<cedar_policy::Entities> for &Entities {
-    type Error = EntitiesError;
-
-    fn try_into(self) -> Result<cedar_policy::Entities, Self::Error> {
-        debug!("Parsing entities into cedar format");
-        cedar_policy::Entities::from_json_value(json!(self.0), None)
     }
 }

@@ -16,10 +16,10 @@ async fn memory_tests() {
 
     let entities = store.get_entities().await;
     assert_eq!(entities.len(), 0);
-    let updated_entities = store.update_entities(utils::entities()).await.unwrap();
+    let updated_entities = store.update_entities(utils::entities(), None).await.unwrap();
     assert_eq!(updated_entities.len(), 8);
 
-    let error_entities = store.update_entities(utils::parse_error_entities()).await;
+    let error_entities = store.update_entities(utils::parse_error_entities(), None).await;
     assert!(error_entities.is_err());
     store.delete_entities().await;
     let entities = store.get_entities().await;
