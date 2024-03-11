@@ -33,6 +33,7 @@ async fn main() -> ExitCode {
     let server_config: rocket::figment::Figment = config.borrow().into();
     let launch_result = rocket::custom(server_config)
         .attach(common::DefaultContentType::new(ContentType::JSON))
+        .attach(services::schema::load_from_file::InitSchemaFairing)
         .attach(services::data::load_from_file::InitDataFairing)
         .attach(services::policies::load_from_file::InitPoliciesFairing)
         .manage(config)

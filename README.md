@@ -40,6 +40,16 @@ Featured Data Stores :
 - [x] In-Memory
 - [ ] Redis
 
+### Schema Store Management
+
+Cedar-Agent support storing custom schemas, which hold the shape of your data types and actions. Utilising the schema
+store enables you to create a strict definition of all the objects used by your application. Cedar-Agent will validate
+all your policies and data against this schema.
+Featured Polict Stores :
+
+- [x] In-Memory
+- [ ] Redis
+
 ### Authorization Checks
 
 One of the key features of Cedar-Agent is its ability to perform authorization checks on stored policies and data.  
@@ -95,6 +105,9 @@ Cedar Agent configuration is available using environment variables and command l
 - The log level to filter logs. Defaults to `info`.  
   `CEDAR_AGENT_LOG_LEVEL` environment variable.  
   `--log-level`, `-l` command line argument.
+- Load schema from json file. Defaults to `None`.  
+  `CEDAR_AGENT_SCHEMA` environment variable.
+  `--schema`, `-s` command line argument.
 - Load data from json file. Defaults to `None`.  
   `CEDAR_AGENT_DATA` environment variable.
   `--data`, `-d` command line argument.
@@ -169,19 +182,25 @@ using Rapidoc and Swagger UI, that you can access through the following routes:
 ### Quickstart
 
 1. [Run the Cedar Agent](#run)
-2. Store policy using this command:
+2. Store schema using this command:
+
+    ```shell
+    curl -X PUT -H "Content-Type: application/json" -d @./examples/schema.json http://localhost:8180/v1/schema
+    ```
+
+3. Store policy using this command:
 
     ```shell
     curl -X PUT -H "Content-Type: application/json" -d @./examples/policies.json http://localhost:8180/v1/policies
     ```
 
-3. Store data using this command:
+4. Store data using this command:
 
     ```shell
     curl -X PUT -H "Content-Type: application/json" -d @./examples/data.json http://localhost:8180/v1/data
     ```
 
-4. Perform IsAuthorized check using this command:
+5. Perform IsAuthorized check using this command:
 
     ```shell
     curl -X POST -H "Content-Type: application/json" -d @./examples/allowed_authorization_query.json http://localhost:8180/v1/is_authorized
