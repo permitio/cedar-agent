@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use async_trait::async_trait;
+use cedar_policy::Schema;
 
 use crate::schemas::data as schemas;
 
@@ -15,5 +16,6 @@ pub trait DataStore: Send + Sync {
     async fn update_entities(
         &self,
         entities: schemas::Entities,
+        schema: Option<Schema>,
     ) -> Result<schemas::Entities, Box<dyn Error>>;
 }

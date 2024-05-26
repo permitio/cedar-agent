@@ -10,13 +10,17 @@ use rocket::Rocket;
 use rocket::Build;
 
 use crate::services::policies::PolicyStore;
+use crate::services::schema::SchemaStore;
 use crate::schemas::policies::Policy;
 use crate::config;
 
 pub struct InitPoliciesFairing;
 
-pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicyStore>) {
-
+pub(crate) async fn init(
+    conf: &config::Config,
+    policy_store: &Box<dyn PolicyStore>,
+    schema_store: &Box<dyn SchemaStore>
+) {
     if conf.policies.is_none() {
         return;
     }
@@ -31,7 +35,8 @@ pub(crate) async fn init(conf: &config::Config, policy_store: &Box<dyn PolicySto
         }
     };
 
-    match policy_store.update_policies(policies.into_inner()).await {
+    let schema = schema_store.get_cedar_schema().await;
+    match policy_store.update_policies(policies.into_inner(), schema).await {
         Ok(policies) => {
             info!("Successfully updated policies from file {}: {} policies", &file_path.display(), policies.len());
         }
@@ -72,6 +77,12 @@ pub async fn load_policies_from_file(path: PathBuf) -> Result<Json<Vec<Policy>>,
 
 #[async_trait::async_trait]
 impl Fairing for InitPoliciesFairing {
+    fn info(&self) -> Info {
+        Info {
+            name: "Init Policies",
+            kind: Kind::Ignite
+        }
+    }
     async fn on_ignite(&self, rocket: Rocket<Build>) -> Result<Rocket<Build>, Rocket<Build>> {
         let config = rocket.state::<config::Config>();
 
@@ -79,15 +90,12 @@ impl Fairing for InitPoliciesFairing {
             return Ok(rocket);
         }
 
-        init(config.unwrap(), rocket.state::<Box<dyn PolicyStore>>().unwrap()).await;
+        init(
+            config.unwrap(),
+            rocket.state::<Box<dyn PolicyStore>>().unwrap(),
+            rocket.state::<Box<dyn SchemaStore>>().unwrap()
+        ).await;
 
         Ok(rocket)
-    }
-
-    fn info(&self) -> Info {
-        Info {
-            name: "Init Policies",
-            kind: Kind::Ignite
-        }
     }
 }

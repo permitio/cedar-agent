@@ -3,6 +3,7 @@ use std::error::Error;
 
 use async_lock::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 use async_trait::async_trait;
+use cedar_policy::Schema;
 use cedar_policy_core::entities;
 use log::{debug, error, info};
 
@@ -80,6 +81,7 @@ impl DataStore for MemoryDataStore {
     async fn update_entities(
         &self,
         entities: schemas::Entities,
+        schema: Option<Schema>,
     ) -> Result<schemas::Entities, Box<dyn Error>> {
         info!("Updating stored entities");
         let mut lock = self.write().await;
@@ -93,7 +95,7 @@ impl DataStore for MemoryDataStore {
             }
         };
         let schema_entities: schemas::Entities = core_entities.clone().into();
-        let cedar_entities: cedar_policy::Entities = match schema_entities.borrow().try_into() {
+        let cedar_entities: cedar_policy::Entities = match schema_entities.borrow().convert_to_cedar_entities(&schema) {
             Ok(entities) => entities,
             Err(err) => return Err(err.into()),
         };
