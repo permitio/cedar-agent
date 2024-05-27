@@ -40,7 +40,7 @@ impl<'r> FromRequest<'r> for ApiKey {
                 if token.validate_matching_header(request) {
                     Outcome::Success(token)
                 } else {
-                    Outcome::Failure((rocket::http::Status::Unauthorized, ()))
+                    Outcome::Error((rocket::http::Status::Unauthorized,()))
                 }
             }
             None => Outcome::Success(ApiKey(None)),
