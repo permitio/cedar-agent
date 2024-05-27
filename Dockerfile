@@ -1,4 +1,4 @@
-FROM rust:1.69-bullseye as build
+FROM rust:1.77-bullseye as build
 
 WORKDIR /agent
 ARG CARGO_FLAGS="--release"
