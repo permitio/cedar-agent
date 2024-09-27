@@ -10,7 +10,7 @@ on:
 jobs:
   # On PR: Run Cargo tests, build, and update
   pr_checks:
-    #if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,14 +31,10 @@ jobs:
 
       - name: Run cargo update
         run: cargo update
-        #cargo generate-lockfile
-        #cargo update --offline
 
-        #cargo update --locked
-
-  # On Release: Publish Cargo package, build and push Docker images
+  # On Release: Publish Cargo package, build and push Docker image
   release:
-    #if: github.event_name == 'release'
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -65,26 +61,27 @@ jobs:
 
       - name: Update Cargo.toml version
         run: |
-          #sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}\"/' Cargo.toml
-          sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"1.1.1\"/' Cargo.toml
+          sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}\"/' Cargo.toml
           cat Cargo.toml
 
       - name: Dry run cargo publish
         run: cargo publish --dry-run --allow-dirty
-
-      # - name: Publish package to crates.io
-      #   run: cargo publish
-      #   env:
-      #     CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
       - name: Build & Push cedar-agent
         uses: docker/build-push-action@v4
         with:
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
-          push: false
+          push: true
           cache-from: type=registry,ref=permitio/cedar-agent:latest
           cache-to: type=inline
           tags: |
             permitio/cedar-agent:latest
-            permitio/cedar-agent:1.1.1
+            permitio/cedar-agent:${{ github.event.release.tag_name }}
+
+      - name: Publish package to crates.io
+        run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+
