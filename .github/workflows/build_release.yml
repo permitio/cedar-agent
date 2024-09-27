@@ -12,6 +12,7 @@ jobs:
   pr_checks:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -36,6 +37,7 @@ jobs:
   release:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    timeout-minutes: 70
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
