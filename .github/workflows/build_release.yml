@@ -29,8 +29,12 @@ jobs:
       - name: Run cargo build
         run: cargo build
 
-      - name: Run cargo update --locked
-        run: cargo update --locked
+      - name: Run cargo update
+        run: cargo update
+        #cargo generate-lockfile
+        #cargo update --offline
+
+        #cargo update --locked
 
   # On Release: Publish Cargo package, build and push Docker images
   release:
@@ -66,7 +70,7 @@ jobs:
           cat Cargo.toml
 
       - name: Dry run cargo publish
-        run: cargo publish --dry-run
+        run: cargo publish --dry-run --allow-dirty
 
       # - name: Publish package to crates.io
       #   run: cargo publish
