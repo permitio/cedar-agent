@@ -87,4 +87,4 @@ jobs:
           cache-to: type=inline
           tags: |
             permitio/cedar-agent:latest
-            #permitio/cedar-agent:${{ github.event.release.tag_name }}
+            permitio/cedar-agent:1.1.1
