@@ -24,14 +24,14 @@ jobs:
           profile: minimal
           override: true
 
+      - name: Run cargo update --locked
+        run: cargo update --locked
+
       - name: Run cargo test
         run: cargo test
 
       - name: Run cargo build
         run: cargo build
-
-      - name: Run cargo update
-        run: cargo update
 
   # On Release: Publish Cargo package, build and push Docker image
   release:
@@ -85,5 +85,10 @@ jobs:
         run: cargo publish --token ${CRATES_TOKEN}
         env:
           CRATES_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: cedar-agent-${{ github.event.release.tag_name }}.crate
+          token: ${{ secrets.TOKEN_GITHUB }}
 
 
