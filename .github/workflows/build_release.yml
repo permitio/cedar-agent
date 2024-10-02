@@ -17,31 +17,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # - name: Set up Rust
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     toolchain: stable
-      #     profile: minimal
-      #     override: true
-
-      # - name: Run cargo update --locked
-      #   run: cargo update --locked
-
-      # - name: Run cargo test
-      #   run: cargo test
-
-      # - name: Run cargo build
-      #   run: cargo build
-
-      - name: Compile and release
-        uses: rust-build/rust-build.action@v1.4.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          RUSTTARGET: x86_64-unknown-linux-musl
-          ARCHIVE_TYPES: tar.gz
-          PRE_BUILD: "cargo test"
+          toolchain: stable
+          profile: minimal
+          override: true
 
+      - name: Run cargo update --locked
+        run: cargo update --locked
+
+      - name: Run cargo test
+        run: cargo test
+
+      - name: Run cargo build
+        run: cargo build
+          
   # On Release: Publish Cargo package, build and push Docker image
   release:
     if: github.event_name == 'release'
@@ -78,26 +69,26 @@ jobs:
       - name: Dry run cargo publish
         run: cargo publish --dry-run --allow-dirty
 
-      # - name: Build & Push cedar-agent
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     file: Dockerfile
-      #     platforms: linux/amd64,linux/arm64
-      #     push: true
-      #     cache-from: type=registry,ref=permitio/cedar-agent:latest
-      #     cache-to: type=inline
-      #     tags: |
-      #       permitio/cedar-agent:latest
-      #       permitio/cedar-agent:${{ github.event.release.tag_name }}
+      - name: Publishing Rust build artifacts
+        uses: rust-build/rust-build.action@v1.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        with:
+          RUSTTARGET: x86_64-unknown-linux-musl
 
-      # - name: Publish package to crates.io
-      #   run: cargo publish --token ${CRATES_TOKEN}
-      #   env:
-      #     CRATES_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Publish package to crates.io
+        run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       
-      # - uses: taiki-e/upload-rust-binary-action@v1
-      #   with:
-      #     bin: cedar-agent-${{ github.event.release.tag_name }}.crate
-      #     token: ${{ secrets.TOKEN_GITHUB }}
-
-
+      - name: Build & Push cedar-agent
+        uses: docker/build-push-action@v4
+        with:
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          cache-from: type=registry,ref=permitio/cedar-agent:latest
+          cache-to: type=inline
+          tags: |
+            permitio/cedar-agent:latest
+            permitio/cedar-agent:${{ github.event.release.tag_name }}
