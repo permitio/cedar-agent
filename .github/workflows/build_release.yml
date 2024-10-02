@@ -17,18 +17,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
+      # - name: Set up Rust
+      #   uses: actions-rs/toolchain@v1
+      #   with:
+      #     toolchain: stable
+      #     profile: minimal
+      #     override: true
 
       # - name: Run cargo update --locked
       #   run: cargo update --locked
 
-      - name: Run cargo test
-        run: cargo test
+      # - name: Run cargo test
+      #   run: cargo test
 
       # - name: Run cargo build
       #   run: cargo build
@@ -39,7 +39,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         with:
           RUSTTARGET: x86_64-unknown-linux-musl
-          # EXTRA_FILES: "README.md LICENSE"
+          ARCHIVE_TYPES: tar.gz
+          PRE_BUILD: "cargo test"
 
   # On Release: Publish Cargo package, build and push Docker image
   release:
