@@ -24,8 +24,8 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Run cargo update --locked
-        run: cargo update --locked
+      - name: Run cargo update
+        run: cargo update
 
       - name: Run cargo test
         run: cargo test
