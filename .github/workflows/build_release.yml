@@ -46,8 +46,14 @@ jobs:
       - name: Update Cargo.toml version
         run: |
           #sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}\"/' Cargo.toml
-          sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"0.2.1\"/' Cargo.toml
-          cat Cargo.toml
+          if [[ "${{ matrix.runner }}" == "macos-latest" ]]; then
+            sed -i '' '/\[package\]/,/^version = /s/^version = .*/version = "0.2.1"/' Cargo.toml
+            cat Cargo.toml
+          fi
+          if [[ "${{ matrix.runner }}" == "ubuntu-latest" ]]; then
+            sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"0.2.1\"/' Cargo.toml
+            cat Cargo.toml
+          fi
 
       - name: Build Binary
         run: cargo build --verbose --release --target ${{ matrix.target }} # --locked have been removed to avoid error
