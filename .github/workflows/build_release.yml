@@ -56,7 +56,7 @@ jobs:
           fi
 
       - name: Build Binary
-        run: cargo build --verbose --locked --release --target ${{ matrix.target }}
+        run: cargo build --verbose --release --target ${{ matrix.target }} # --locked have been removed to avoid error
       
       - name: Dry run cargo publish
         run: cargo publish --dry-run --allow-dirty --target ${{ matrix.target }}
