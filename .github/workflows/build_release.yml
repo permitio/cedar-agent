@@ -63,8 +63,26 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
-          export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc
+          #export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc
           #export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=/usr/bin/arm-linux-gnueabihf-gcc
+          # Define the path to the Cargo config file
+          CARGO_CONFIG="$HOME/.cargo/config.toml"
+
+          # Check if the file exists; if not, create it
+          if [[ ! -f "$CARGO_CONFIG" ]]; then
+              mkdir -p "$HOME/.cargo"
+              touch "$CARGO_CONFIG"
+          fi
+
+          # Add the target configuration if it doesn't already exist
+          if ! grep -q "\[target.aarch64-unknown-linux-gnu\]" "$CARGO_CONFIG"; then
+              echo -e "\n[target.aarch64-unknown-linux-gnu]" >> "$CARGO_CONFIG"
+              echo 'linker = "aarch64-linux-gnu-gcc"' >> "$CARGO_CONFIG"
+              echo "Configuration added to $CARGO_CONFIG"
+          else
+              echo "Configuration already exists in $CARGO_CONFIG"
+          fi
+          cat $HOME/.cargo/config.toml
 
       - name: Build Binary
         if: ${{ matrix.target != 'aarch64-unknown-linux-gnu' }}
