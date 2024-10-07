@@ -53,7 +53,8 @@ jobs:
             cat Cargo.toml
           fi
           if [[ "${{ matrix.runner }}" == "ubuntu-latest" ]]; then
-            sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}\"/' Cargo.toml
+            #sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}\"/' Cargo.toml
+            sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"1.1.1\"/' Cargo.toml
             cat Cargo.toml
           fi
 
