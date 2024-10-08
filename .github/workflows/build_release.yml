@@ -96,7 +96,7 @@ jobs:
           token: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Publish package to crates.io
-        run: cargo publish --token ${CRATES_TOKEN} --target ${{ matrix.target }}
+        run: cargo publish --token ${CRATES_TOKEN} --target ${{ matrix.target }} --allow-dirty
         env:
           CRATES_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
