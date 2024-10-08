@@ -49,11 +49,11 @@ jobs:
       - name: Update Cargo.toml version
         run: |
           if [[ "${{ matrix.runner }}" == "macos-latest" ]]; then
-            sed -i '' '/\[package\]/,/^version = /s/^version = .*/version = "${{ github.event.release.tag_name }}"/' Cargo.toml
+            sed -i '' '/\[package\]/,/^version = /s/^version = .*/version = "${{ github.event.release.tag_name }}-${{ matrix.target }}"/' Cargo.toml
             cat Cargo.toml
           fi
           if [[ "${{ matrix.runner }}" == "ubuntu-latest" ]]; then
-            sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}\"/' Cargo.toml
+            sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}-${{ matrix.target }}\"/' Cargo.toml
             cat Cargo.toml
           fi
 
