@@ -120,7 +120,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build & Push cedar-agent
+      - name: Build & Push cedar-agent - (pre-release)
+        if: "github.event.release.prerelease"
+        uses: docker/build-push-action@v4
+        with:
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          cache-from: type=registry,ref=permitio/cedar-agent:latest
+          cache-to: type=inline
+          tags: |
+            permitio/cedar-agent:${{ github.event.release.tag_name }}
+        
+      - name: Build & Push cedar-agent - (official release)
+        if: "!github.event.release.prerelease"
         uses: docker/build-push-action@v4
         with:
           file: Dockerfile
