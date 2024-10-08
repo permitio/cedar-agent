@@ -48,14 +48,21 @@ jobs:
 
       - name: Update Cargo.toml version
         run: |
+          # Replace underscores with dots to conform to SemVer
+          sanitized_target="${{ matrix.target//_/.}}"
+          arch_version="${{ github.event.release.tag_name }}-${sanitized_target}"
+          
           if [[ "${{ matrix.runner }}" == "macos-latest" ]]; then
-            sed -i '' '/\[package\]/,/^version = /s/^version = .*/version = "${{ github.event.release.tag_name }}-${{ matrix.target }}"/' Cargo.toml
+            sed -i '' '/\[package\]/,/^version = /s/^version = .*/version = "'"${arch_version}"'"/' Cargo.toml
             cat Cargo.toml
           fi
+
           if [[ "${{ matrix.runner }}" == "ubuntu-latest" ]]; then
-            sed -i '/\[package\]/,/^version = /s/^version = .*/version = \"${{ github.event.release.tag_name }}-${{ matrix.target }}\"/' Cargo.toml
+            sed -i '/\[package\]/,/^version = /s/^version = .*/version = "'"${arch_version}"'"/' Cargo.toml
             cat Cargo.toml
           fi
+
+
 
       - name: Prepare for ARM64
         if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
