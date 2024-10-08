@@ -1,0 +1,30 @@
+name: Cedar-agent - PR test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pr_checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Run cargo update --locked
+        run: cargo update --locked
+
+      - name: Run cargo test
+        run: cargo test
+
+      - name: Run cargo build
+        run: cargo build
