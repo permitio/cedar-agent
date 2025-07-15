@@ -107,8 +107,7 @@ jobs:
 
   docker-build-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
-    needs: build-cross-package
+    timeout-minutes: 120
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
