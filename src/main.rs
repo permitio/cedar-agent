@@ -49,10 +49,12 @@ async fn main() -> ExitCode {
                 errors::catchers::handle_400,
             ],
         )
+        .mount("/", openapi_get_routes![routes::health,])
+        .mount("/health", openapi_get_routes![routes::health,])
         .mount(
             "/v1",
             openapi_get_routes![
-                routes::healthy,
+                routes::health,
                 routes::policies::get_policies,
                 routes::policies::get_policy,
                 routes::policies::create_policy,
