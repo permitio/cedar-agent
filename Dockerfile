@@ -1,4 +1,4 @@
-FROM rust:1.89-bookworm as build
+FROM rust:1.90-bookworm as build
 
 WORKDIR /agent
 ARG CARGO_FLAGS="--release"
