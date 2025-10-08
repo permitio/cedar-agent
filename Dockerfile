@@ -1,4 +1,4 @@
-FROM rust:1.77-bullseye as build
+FROM rust:1.89-bookworm as build
 
 WORKDIR /agent
 ARG CARGO_FLAGS="--release"
@@ -11,7 +11,13 @@ COPY Cargo.lock Cargo.lock
 # see https://blog.rust-lang.org/inside-rust/2023/01/30/cargo-sparse-protocol.html
 RUN CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse cargo build ${CARGO_FLAGS}
 
-FROM debian:bullseye-slim as agent
+FROM debian:bookworm-slim as agent
+
+# Update package lists and install security updates
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /agent
 
