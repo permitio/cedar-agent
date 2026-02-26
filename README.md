@@ -45,7 +45,7 @@ Featured Data Stores :
 Cedar-Agent support storing custom schemas, which hold the shape of your data types and actions. Utilising the schema
 store enables you to create a strict definition of all the objects used by your application. Cedar-Agent will validate
 all your policies and data against this schema.
-Featured Polict Stores :
+Featured Policy Stores :
 
 - [x] In-Memory
 - [ ] Redis
@@ -242,7 +242,7 @@ using Rapidoc and Swagger UI, that you can access through the following routes:
 **For more details about the performed requests you can check the [examples directory](examples)**
 
 ## Run Cedar-agents at scale with OPAL
-Want to run multiple Cedar-agents and have them loaded with the data and policeis you need? Try [OPAL](https://github.com/permitio/opal).
+Want to run multiple Cedar-agents and have them loaded with the data and policies you need? Try [OPAL](https://github.com/permitio/opal).
 OPAL (Open Policy Administration Layer) is a sister project to Cedar-Agent, which has become the de-facto way to manage policy agents (including others like OPA) at scale.
 Check out the [tutorial for Cedar+OPAL in the OPAL docs](https://docs.opal.ac/tutorials/cedar).
 
